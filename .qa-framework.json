@@ -1,5 +1,5 @@
 {
-  "frameworkVersion": "1.0.0",
+  "frameworkVersion": "1.1.0",
   "app": {
     "name": "Notion Knockoff",
     "slug": "notion-knockoff",
@@ -38,10 +38,10 @@
     "includeTraces": "auto"
   },
   "files": {
-    "framework/CHANGELOG.md": "2fbbbe2d3bf3f8ea875e75652b9739634e91d28844bd77259ef2c891d98a9b25",
-    "framework/README.md": "f28b4d91409525c4d6255d40ae865c5c40c00a426f4771032ecf824eb9729822",
-    "framework/VERSION": "59854984853104df5c353e2f681a15fc7924742f9a2e468c29af248dce45ce03",
-    "framework/bin/qa.mjs": "bdddb319f9fc0e99ce8214a573b7d9e2c09fe516da96efc1c59dc0c987c7a7d9",
+    "framework/CHANGELOG.md": "aa1b1d8063cbd424d212439d2080abe650ee9460be5628f90ed80aff9acd3e70",
+    "framework/README.md": "d138d0ebc3acaf1af4e2c9fe0157f592bb8ce416fb1c07aec80b80e50102d059",
+    "framework/VERSION": "1575e1af4a95f12f70b4ee6a6adce8160953d93ea17dc2611b90883ccc3ad3b8",
+    "framework/bin/qa.mjs": "85423fb0f63caf48f3e1df466b3ffacb60c0caf150b2321d92c15cf27dd0fa09",
     "framework/lib/api/coverage.js": "8dd6d7802ac1bd493c870cd4d23387273a0eb183651d85601d6d0a18802e9f43",
     "framework/lib/api/discover.js": "bb9c7bdda6e2bd2ee55e4eb67d0e1384057c367dca73501237b1565fa01eeb13",
     "framework/lib/api/normalize.js": "29c46b2312148132b95f435c901769e0e5b166fb5505872ad008368b68e0a1f4",
@@ -51,10 +51,11 @@
     "framework/lib/api/sweeper.js": "55f3d41a1d19be562cafbe969e682691e42abd6a6f67c05cd5bb8d8a6a30fd37",
     "framework/lib/catalog.js": "0f32c6a6b8835ebcfd11c61c687d9be7942b518f10b537c05fce93a3fd87fed3",
     "framework/lib/collect.js": "4f160b2ee0d3a558e55a3e98238f9410970274bda989368ae3af77dfc7acfd2d",
-    "framework/lib/config.js": "d4eff7d90f8642f42bf75bb25d9b84798eb5da9ba16b4480219a0dbfd547114d",
+    "framework/lib/config.js": "e08dc49a46d86cdef198ec739e677e08cbe51e2659befd1e696b63766b55a166",
     "framework/lib/diagnosis.js": "8740267ae1dfcd8085ab831dd7703440e4cc9b8d85c4faac604371f00e5b7427",
     "framework/lib/doctor.js": "5c4750549fcfbe9c15d1422b3ddcf2428bab6b0adcc80e673eb3044dc2cc16d7",
     "framework/lib/env.js": "ad7fddc95f73cd0c1f421fc3044ec4fddcad637aa5881a80b5d1248ec78eecf7",
+    "framework/lib/envvars.js": "96fd9f257a5972eb584bd2bc9548edae3cca4cbe85df40476dbbc53a8f7d170d",
     "framework/lib/explore.js": "4455bd6b9291a04325bc0af3c180f72d5a8806505f58604538e66738bd98ca51",
     "framework/lib/github.js": "48b76c4546cd6de39ddf036dbac26f721a9675479008a31747cd0fd9305489de",
     "framework/lib/heal/llm-tier.js": "08d3b82f07214b3d1490f1f9f32dde01b3196a223ffe0f7c6c081fe16e48be9f",
@@ -68,16 +69,16 @@
     "framework/lib/llm/index.js": "dc3345dcac240238b597e6a4af338d2c1f5fa99f8e28e9c0ee70a5501a33668f",
     "framework/lib/login.js": "566742a8150abac3c12ae10eac2d0b2350f3679105186777266a0a722ebbcd57",
     "framework/lib/risk.js": "d2ee6201dd095611d009f01f3f5655f70a4cb481050d59725cb24c7a537b340d",
-    "framework/lib/scaffold.js": "0394fe782fe9dc85520870abf73875faf521001e1e53cbaaddb54fa7d80da05d",
-    "framework/lib/secrets.js": "d30d380a10dd31f7948b150261ef0c2f94782c99e2becc30cc5e3c7013ea02ff",
+    "framework/lib/scaffold.js": "c055135ea2a2f00b11138d8c431d04db65ccb5be9686cb443d4b18dcabc50297",
+    "framework/lib/secrets.js": "05ce2d118c70e6701a9d48821397097696e5094927e9ac1eb6394987752e3659",
     "framework/lib/site/allure-links.js": "1481e9ad2c2f6c82d10d6a6982dd529eb6a2ebc81128ea2fe8ea0e90d6793c83",
-    "framework/lib/site/build.js": "872018c9b89fb28d3d36e23ef09a6ec0255b2cbfd58d66834fb38e8d8dfe70c1",
+    "framework/lib/site/build.js": "158e4431c7c1885a835f0fb9fc1a630437821200391b3666fac8e031d6a20eba",
     "framework/lib/site/prepare.js": "8f6904d371841209919e2d052936f9954dd6c00403c9e955e5bd2e320878215c",
     "framework/lib/site/publish.js": "a3910f19df672722fc665df297a735cb41e46752d75401edb8a3fc9bac1fb87e",
     "framework/lib/site/redact.js": "c7ecad360c64212809ca846f802bf8ce694381404907fad40cde7bd63c380bd3",
     "framework/lib/site/sanitize.js": "0a8d41bd3db1319db458ed5594726d0f76a7ec4f639023dd3db0a74c0a960813",
     "framework/lib/tickets.js": "26000660fff50591b9b8fa92521703dd7fb5cc3952425abf9bcf4c879495d6b0",
-    "framework/lib/upgrade.js": "5d197e90ecf4610aaabdb7bc84227307c05af51be7e3a53bcb97790a7c0212a2",
+    "framework/lib/upgrade.js": "051e720b7d3c8e06ef052b84bdec0992353773d40ba9c58e05303644c72dd2f1",
     "framework/playwright/api-fixtures.js": "d05a9ef00968a5b54eb7a48eab38e0206d2ddb34a42852e17d914099afa1bfde",
     "framework/playwright/fixtures.js": "2870358114387140e1b09cd6185148d4725c5260e63612a81c1951e8dcfeb2eb",
     "framework/playwright/heal-fixtures.js": "bd29b7abe1eeb156b2aed6e1d4dea4f1636db83d6b251666794fe53ee44933bb",
@@ -107,6 +108,7 @@
     "framework/test/catalog.test.js": "d091989b91e740f598c6a6b877f1b66da145d89ee82fe6ce093d6b6e7426472f",
     "framework/test/diagnosis.test.js": "cf0aaeb29d9de596681771c39c42802651821139cc99b389f45e4607bd392c9b",
     "framework/test/doctor.test.js": "17f3e08254906605ccf6ca9df27b71d520d93a616c9970498f875e93efb555f2",
+    "framework/test/envvars.test.js": "61ed677106aecfb85fa5a6839a6981d8af905319d15d792dd3c2a18f4e8d2b14",
     "framework/test/fixture-app.js": "8cb86bc6e22ccec6c153eb1191d0040caa7e3971d2b52d4350e8b6c22d480bd0",
     "framework/test/github.test.js": "9fc778a8fbcf222289f0913388d462d1c05fbe2dad600a3da2fc3f346fe010ef",
     "framework/test/heal.test.js": "fc2f2a3a858190b534ef4c9efa9b864feef321b19473e221f81e39d446f19e57",
@@ -117,19 +119,27 @@
     "framework/test/mock-api.js": "610274d186b5a95714c036659e2b781a8d9337b61eecd2c3c7e1922d4e6f9371",
     "framework/test/risk.test.js": "3e3d5487d42880e0e01e7abc07aeba910b47a67f42515020eff60444bf325526",
     "framework/test/scaffold.test.js": "e404fc3ade33c10d7bf4cdf9463c0ebf9d2ecd830531a032e8503d459c6bf860",
-    "framework/test/site.test.js": "718ace9cdac5a270c69c7ef04434bfce297905e2145230b10e947e1c09e3f4ab",
+    "framework/test/site.test.js": "d42d7317c0b4d51a7f7c731d549296f473549483102a04b58925ae0e6c0df06e",
     "framework/test/tcm.test.js": "ac8000729784d44a4421eacbd00c2e4f9e18dcccecbd14276a451ec5ef3c2b70",
     "framework/test/tickets.test.js": "e48244b9ebab5857e7787358463411e63f3659617497e7dd623a46a250454b3d",
-    "framework/test/upgrade.test.js": "f3c0c8079d8612fa9644afaf1cc92f80fc1f9b4f15829d57f9204257cd2cf6b9",
+    "framework/test/upgrade.test.js": "d5af7bb102f259873834b8ba52e2b923d9d18236f38bd243d9f0f639a25ad0ac",
     "framework/test/visual.test.js": "c6162b310fd17f7fa7d9b38d8aa9d3f0d4d5573f6da911e2a87b77f29d317a39",
     "framework/workflows/checks.yml": "b7e587133b5501396a581d3fbec8780d9c8fba994589ce23d674991273a4b041",
     "framework/workflows/pages.yml": "e739d56a6953288dd01fbd556546ca611907a7e0feaa6f6d39e12068ee0b3928",
     "framework/workflows/suite.yml": "469935667d87ca17aecfa86eae6dd6440bf7c10ac9e158251298eb814c63c1e0",
     "framework/workflows/visual.yml": "2ee3227f0f33a16702a0f838ba66bb7c1c457a5634a386ce4f4b7c393ee5cf9e",
-    ".github/workflows/smoke.yml": "cf24ce59b2c7975e90695597749566f1799d1e823c506c9b06252ba3c395c065",
-    ".github/workflows/regression.yml": "414c8d73be072a4bf5593940169a7544ccd86dd4faa0f08b10f0087e29da1539",
-    ".github/workflows/api.yml": "f7e25f29b5d281830c75116e939757dcfead22fa69c6c96a31ca09447e847b1f",
+    ".github/workflows/smoke.yml": "a0e62bbf5604c46eb9dafdedcb2a420c4289f290f5230b8279d38a960e19ac79",
+    ".github/workflows/regression.yml": "726d89fa3d63563eaa1b5e6347c52c7da5313ec5146d2d13c5f76c7f26b7aaa9",
+    ".github/workflows/api.yml": "4e968302a198bfd8adeef9e16576e03672cea19efbb9d142950472b53a7bfeb0",
     ".github/workflows/checks.yml": "b7e587133b5501396a581d3fbec8780d9c8fba994589ce23d674991273a4b041",
     ".github/workflows/pages.yml": "74fa7ca18601c78ed0e23654d4b9596966a9a5ce930a82c2bcf8fb8aa007da10"
+  },
+  "extraEnv": {
+    "secrets": [
+      "SUPABASE_ANON_KEY"
+    ],
+    "variables": [
+      "API_BASE_URL"
+    ]
   }
 }

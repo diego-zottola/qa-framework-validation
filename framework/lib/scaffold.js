@@ -89,6 +89,8 @@ export function renderEnvExample(config) {
     lines.push('', '# LLM (optional; the framework works without it). Page element names are sent to this provider.', 'LLM_PROVIDER=', 'LLM_MODEL=', 'LLM_API_KEY=');
     if (config.options.llm.provider === 'openai-compatible') lines.push('LLM_BASE_URL=');
   }
+  const extra = [...(config.extraEnv?.secrets ?? []), ...(config.extraEnv?.variables ?? [])];
+  if (extra.length) lines.push('', '# Needed by the application under test (added with `npm run qa -- env add`)', ...extra.map((n) => `${n}=`));
   return lines.join('\n') + '\n';
 }
 

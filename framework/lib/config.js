@@ -18,6 +18,8 @@ export function defaultConfig(overrides = {}) {
     // push: smoke on every push to main/master. pullRequest: structure checks without secrets. productDeploy: run after the product repo deploys.
     triggers: { push: true, pullRequest: true, productDeploy: false },
     productRepo: '',
+    // Settings the application needs that init does not know (API keys, URLs). Add with `npm run qa -- env add NAME --secret|--variable`.
+    extraEnv: { secrets: [], variables: [] },
     retentionDays: 15,
     // 'auto': traces and full reports are uploaded only when the repository is private (artifacts of a public one are readable by any GitHub user).
     artifacts: { includeTraces: 'auto' },
@@ -47,6 +49,7 @@ export function requiredSecrets(config) {
   if (config.options.slack) secrets.push('SLACK_WEBHOOK_URL');
   if (config.options.jira) secrets.push('JIRA_BASE_URL', 'JIRA_EMAIL', 'JIRA_API_TOKEN', 'JIRA_PROJECT_KEY');
   if (config.options.llm) secrets.push('LLM_API_KEY');
+  secrets.push(...(config.extraEnv?.secrets ?? []));
   return secrets;
 }
 
@@ -59,5 +62,6 @@ export function requiredVariables(config) {
     names.push('LLM_PROVIDER', 'LLM_MODEL');
     if (config.options.llm.provider === 'openai-compatible') names.push('LLM_BASE_URL');
   }
+  names.push(...(config.extraEnv?.variables ?? []));
   return names;
 }

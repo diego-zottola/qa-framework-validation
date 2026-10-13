@@ -8,6 +8,8 @@ const NUMBER = /^\d{1,20}$/;
 const RUN_FILES = ['meta.json', 'diagnosis.json', 'diagnosis.md', 'heal-report.md', 'heal-proposals.json', 'case-links.json'];
 
 export const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+/** Markdown reports are shown as escaped preformatted text: readable in a browser, with nothing executable in them. */
+const textPage = (title, text) => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(title)}</title><style>body{font:14px/1.5 system-ui,sans-serif;max-width:1000px;margin:16px auto;padding:0 16px}pre{white-space:pre-wrap;word-break:break-word}@media(prefers-color-scheme:dark){body{background:#0d1117;color:#e6edf3}}</style></head><body><p><a href="../../../index.html">All runs</a></p><h1>${esc(title)}</h1><pre>${esc(text)}</pre></body></html>\n`;
 const runKey = (m) => `${m.runId}-${m.attempt}`;
 
 export function listRuns(siteDir) {
@@ -35,6 +37,10 @@ export function addRuns({ siteDir, incomingDir }) {
     fs.rmSync(target, { recursive: true, force: true });
     fs.mkdirSync(target, { recursive: true });
     for (const name of RUN_FILES) if (fs.existsSync(path.join(dir, name))) fs.copyFileSync(path.join(dir, name), path.join(target, name));
+    for (const [md, title] of [['diagnosis.md', 'Failure diagnosis'], ['heal-report.md', 'Selector healing suggestions']]) {
+      const source = path.join(target, md);
+      if (fs.existsSync(source)) fs.writeFileSync(source.replace(/\.md$/, '.html'), textPage(`${title} · ${meta.suite} run ${meta.runId}`, fs.readFileSync(source, 'utf8')));
+    }
     if (fs.existsSync(path.join(dir, 'allure-report'))) fs.cpSync(path.join(dir, 'allure-report'), path.join(target, 'allure'), { recursive: true });
     added.push(`${meta.suite}/${runKey(meta)}`);
   }
@@ -79,7 +85,7 @@ const badge = (status) => `<span class="s ${esc(status)}">${esc(status)}</span>`
 function portalHtml({ runs, app, retentionDays, now }) {
   const latest = latestBySuite(runs);
   const cards = Object.entries(latest).map(([suite, r]) => `<a class="card" href="latest/${esc(suite)}/">${badge(r.status)} <b>${esc(suite)}</b><br><small>${esc(r.finishedAt.slice(0, 16).replace('T', ' '))} UTC · ${r.counts.passed} passed · ${r.counts.failed} failed · ${r.counts.flaky} flaky</small></a>`).join('') || '<p>No runs published yet.</p>';
-  const rows = runs.map((r) => `<tr><td>${esc(r.finishedAt.slice(0, 16).replace('T', ' '))}</td><td>${esc(r.suite)}</td><td>${badge(r.status)}</td><td>${r.counts.passed}/${r.counts.failed}/${r.counts.flaky}</td><td>${esc(r.event)} ${esc(r.sha)}</td><td><a href="${esc(r.dir)}/allure/index.html">Allure</a>${fs.existsSync(path.join(r._siteDir ?? '', r.dir, 'diagnosis.md')) ? ` · <a href="${esc(r.dir)}/diagnosis.md">diagnosis</a>` : ''}${r.runUrl ? ` · <a href="${esc(r.runUrl)}">workflow run</a>` : ''}</td></tr>`).join('');
+  const rows = runs.map((r) => `<tr><td>${esc(r.finishedAt.slice(0, 16).replace('T', ' '))}</td><td>${esc(r.suite)}</td><td>${badge(r.status)}</td><td>${r.counts.passed}/${r.counts.failed}/${r.counts.flaky}</td><td>${esc(r.event)} ${esc(r.sha)}</td><td><a href="${esc(r.dir)}/allure/index.html">Allure</a>${fs.existsSync(path.join(r._siteDir ?? '', r.dir, 'diagnosis.html')) ? ` · <a href="${esc(r.dir)}/diagnosis.html">diagnosis</a>` : ''}${fs.existsSync(path.join(r._siteDir ?? '', r.dir, 'heal-report.html')) ? ` · <a href="${esc(r.dir)}/heal-report.html">healing</a>` : ''}${r.runUrl ? ` · <a href="${esc(r.runUrl)}">workflow run</a>` : ''}</td></tr>`).join('');
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(app)} · QA reports</title>
 <style>:root{--bg:#fff;--fg:#1f2328;--muted:#656d76;--line:#d8dee4}@media(prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--muted:#8b949e;--line:#30363d}}
 body{margin:0;padding:16px;font:14px/1.5 system-ui,sans-serif;background:var(--bg);color:var(--fg);max-width:1000px;margin-inline:auto}a{color:#0969da}

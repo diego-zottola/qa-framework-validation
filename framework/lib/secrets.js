@@ -13,13 +13,13 @@ export function hasGithubRemote() {
  * Uploads the secrets the workflows need, taking values from `env` (the local .env). Values go through
  * stdin only, so they never reach argv or logs. Returns { set, missing, failed } with names only.
  */
-export function syncSecrets(config, env = process.env, { dryRun = false } = {}) {
+export function syncSecrets(config, env = process.env, { dryRun = false, only } = {}) {
   const result = { set: [], missing: [], failed: [], skipped: null };
   if (!haveCommand('gh') || !hasGithubRemote()) {
     result.skipped = 'gh CLI or git remote "origin" not available';
     return result;
   }
-  for (const name of requiredSecrets(config)) {
+  for (const name of requiredSecrets(config).filter((n) => !only || only.includes(n))) {
     const value = env[name];
     if (!value) {
       result.missing.push(name);
@@ -36,13 +36,13 @@ export function syncSecrets(config, env = process.env, { dryRun = false } = {}) 
 }
 
 /** Same for repository variables (non-secret settings such as LLM_PROVIDER). */
-export function syncVariables(config, env = process.env) {
+export function syncVariables(config, env = process.env, { only } = {}) {
   const result = { set: [], missing: [], failed: [], skipped: null };
   if (!haveCommand('gh') || !hasGithubRemote()) {
     result.skipped = 'gh CLI or git remote "origin" not available';
     return result;
   }
-  for (const name of requiredVariables(config)) {
+  for (const name of requiredVariables(config).filter((n) => !only || only.includes(n))) {
     if (!env[name]) {
       result.missing.push(name);
       continue;

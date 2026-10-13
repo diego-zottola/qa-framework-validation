@@ -26,6 +26,35 @@ function appendSummary(markdown) {
 }
 
 const commands = {
+  // qa env add NAME --secret|--variable: make CI receive a setting the app needs (API key, backend URL).
+  env: async (args) => {
+    const [action, name] = args;
+    if (action !== 'add' || !name) throw new Error('Usage: qa env add NAME --secret|--variable');
+    const kind = args.includes('--secret') ? 'secret' : args.includes('--variable') ? 'variable' : '';
+    const { addEnvVar } = await import('../lib/envvars.js');
+    const { loadEnv } = await import('../lib/env.js');
+    const { readConfig } = await import('../lib/config.js');
+    const { syncSecrets, syncVariables } = await import('../lib/secrets.js');
+    const result = await addEnvVar({ name, kind });
+    console.log(`env: ${name} registered as ${kind}; workflows updated: ${result.updated.join(', ') || 'none'}${result.kept.length ? `; customized (new version in .qa-out/upgrade/): ${result.kept.join(', ')}` : ''}`);
+    loadEnv();
+    const config = readConfig();
+    const synced = kind === 'secret' ? syncSecrets(config, process.env, { only: [name] }) : syncVariables(config, process.env, { only: [name] });
+    const outcome = synced.skipped ? `not uploaded (${synced.skipped}); run \`npm run qa -- secrets\` later` : synced.set.length ? 'uploaded to GitHub' : `no value for ${name} in .env: add it and run \`npm run qa -- secrets\``;
+    console.log(`env: ${name} ${outcome}`);
+  },
+  // qa sync: regenerate the workflows from .qa-framework.json (customized ones are kept, new version in .qa-out/upgrade/).
+  sync: async () => {
+    const { readConfig, writeConfig } = await import('../lib/config.js');
+    const { applyWorkflows, manifestOf } = await import('../lib/upgrade.js');
+    const { renderWorkflows } = await import('../lib/scaffold.js');
+    const config = readConfig();
+    const { updated, kept } = applyWorkflows({ root: process.cwd(), config, rendered: renderWorkflows(config) });
+    config.files = { ...config.files, ...manifestOf(process.cwd(), updated) };
+    for (const rel of kept) delete config.files[rel];
+    writeConfig(config);
+    console.log(`sync: updated ${updated.join(', ') || 'none'}; kept ${kept.join(', ') || 'none'}`);
+  },
   // qa explore: ask Claude Code to explore the app again and extend docs, page objects and tests.
   explore: async () => {
     const { runExplore } = await import('../lib/explore.js');
@@ -308,8 +337,11 @@ const commands = {
     loadEnv();
     const r = syncSecrets(readConfig(), process.env);
     if (r.skipped) console.log(`Secrets not set: ${r.skipped}`);
-    console.log(`set: ${r.set.join(', ') || '-'}\nmissing in .env: ${r.missing.join(', ') || '-'}\nfailed: ${r.failed.join(', ') || '-'}`);
-    process.exit(r.failed.length || r.skipped ? 1 : 0);
+    console.log(`secrets set: ${r.set.join(', ') || '-'}\nmissing in .env: ${r.missing.join(', ') || '-'}\nfailed: ${r.failed.join(', ') || '-'}`);
+    const { syncVariables } = await import('../lib/secrets.js');
+    const v = syncVariables(readConfig(), process.env);
+    console.log(`variables set: ${v.set.join(', ') || '-'}\nmissing in .env: ${v.missing.join(', ') || '-'}\nfailed: ${v.failed.join(', ') || '-'}`);
+    process.exit(r.failed.length || v.failed.length || r.skipped ? 1 : 0);
   },
   doctor: async () => {
     const { runDoctor } = await import('../lib/doctor.js');

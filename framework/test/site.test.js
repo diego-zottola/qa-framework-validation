@@ -79,6 +79,8 @@ function incomingRun(root, name, { suite = 'smoke', runId = '100', attempt = '1'
   fs.writeFileSync(path.join(dir, 'meta.json'), JSON.stringify({ suite, runId, attempt, finishedAt, startedAt: finishedAt, status, sha: 'abc1234', event: 'schedule', counts: { passed: 3, failed: status === 'failed' ? 1 : 0, flaky: 0, skipped: 0 }, runUrl: 'https://github.com/o/r/actions/runs/100' }));
   fs.writeFileSync(path.join(dir, 'case-links.json'), JSON.stringify(links));
   fs.writeFileSync(path.join(dir, 'secrets.txt'), 'not in the allow list');
+  fs.writeFileSync(path.join(dir, 'diagnosis.md'), '## Failure diagnosis\n<script>alert(1)</script>\n');
+  fs.writeFileSync(path.join(dir, 'heal-report.md'), '## Healing\n');
   return dir;
 }
 const catalog = { generatedAt: '2026-02-10T00:00:00Z', stats: { total: 1 }, areas: [], cases: [] };
@@ -95,7 +97,12 @@ test('the site keeps each run in its own folder, one per suite and run, and copi
   assert.ok(!fs.existsSync(path.join(site, 'runs/smoke/100-1/secrets.txt')), 'unknown files are never copied');
   assert.ok(fs.existsSync(path.join(site, 'latest/smoke/index.html')));
   assert.match(fs.readFileSync(path.join(site, 'latest/smoke/index.html'), 'utf8'), /runs\/smoke\/100-1\/allure\/index\.html/);
+  const html = fs.readFileSync(path.join(site, 'runs/smoke/100-1/diagnosis.html'), 'utf8');
+  assert.match(html, /&lt;script&gt;alert\(1\)&lt;\/script&gt;/, 'report text is escaped');
+  assert.doesNotMatch(html, /<script>/);
   const portal = fs.readFileSync(path.join(site, 'index.html'), 'utf8');
+  assert.match(portal, /diagnosis\.html/);
+  assert.match(portal, /heal-report\.html/);
   assert.match(portal, /My &lt;App&gt;/);
   assert.match(portal, /href="tcm\/"/);
   assert.match(portal, /kept 15 days/);

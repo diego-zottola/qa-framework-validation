@@ -32,6 +32,7 @@ All of it. An LLM is only used by the optional tier 3 of the healer, and only if
 | Notify | `qa notify` | Slack, Jira (optional) |
 | Risk | `qa select` | Tests by product change; doubt means everything |
 | Tickets | `qa ticket-draft`, `qa ticket-check` | Drafts from acceptance criteria and a structural gate |
+| Settings | `qa env add NAME --secret\|--variable`, `qa sync`, `qa secrets` | Make CI receive what the app needs; regenerate workflows; upload secrets and variables |
 | Upgrade | `qa upgrade`, `qa adopt` | See below |
 
 ## What each workflow does and when it runs

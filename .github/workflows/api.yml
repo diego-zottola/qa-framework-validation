@@ -36,6 +36,8 @@ jobs:
           TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
           GUEST_USER_USERNAME: ${{ secrets.GUEST_USER_USERNAME }}
           GUEST_USER_PASSWORD: ${{ secrets.GUEST_USER_PASSWORD }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          API_BASE_URL: ${{ vars.API_BASE_URL }}
       - name: Run tests
         id: run
         continue-on-error: true
@@ -51,6 +53,8 @@ jobs:
           TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
           GUEST_USER_USERNAME: ${{ secrets.GUEST_USER_USERNAME }}
           GUEST_USER_PASSWORD: ${{ secrets.GUEST_USER_PASSWORD }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          API_BASE_URL: ${{ vars.API_BASE_URL }}
       - name: Diagnose failures
         if: always() && hashFiles('playwright-report/results.json') != ''
         run: npm run qa -- diagnose
@@ -63,6 +67,8 @@ jobs:
           TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
           GUEST_USER_USERNAME: ${{ secrets.GUEST_USER_USERNAME }}
           GUEST_USER_PASSWORD: ${{ secrets.GUEST_USER_PASSWORD }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          API_BASE_URL: ${{ vars.API_BASE_URL }}
       - name: Upload the publishable report
         if: always() && hashFiles('qa-publish/meta.json') != ''
         uses: actions/upload-artifact@v4

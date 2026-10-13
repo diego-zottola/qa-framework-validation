@@ -66,7 +66,24 @@ export async function upgradeProject({ root = process.cwd(), templateDir, force 
   fs.rmSync(path.join(root, 'framework'), { recursive: true, force: true });
   fs.cpSync(path.join(templateDir, 'framework'), path.join(root, 'framework'), { recursive: true });
   const fresh = await import(`${pathToFileURL(path.join(root, 'framework/lib/scaffold.js')).href}?upgrade=${Date.now()}`);
-  const rendered = fresh.renderWorkflows(config);
+  const { updated, kept } = applyWorkflows({ root, config, rendered: fresh.renderWorkflows(config) });
+  const packageChanges = fresh.syncPackageJson(config, root);
+  const changelog = fs.readFileSync(path.join(root, 'framework/CHANGELOG.md'), 'utf8');
+  const notes = notesBetween(changelog, config.frameworkVersion, target);
+  const from = config.frameworkVersion;
+  config.frameworkVersion = target;
+  config.files = manifestOf(root, updated);
+  for (const rel of kept) delete config.files[rel];
+  writeConfig(config, root);
+  return { status: 'upgraded', from, to: target, updated, kept, packageChanges, notes };
+}
+
+/**
+ * Writes the generated workflows, but only over files nobody customized (unchanged since the framework wrote them, or
+ * already identical). A customized one is left alone and the new version goes to .qa-out/upgrade/ for a manual diff.
+ */
+export function applyWorkflows({ root, config, rendered }) {
+  const recorded = config.files ?? {};
   const updated = [];
   const kept = [];
   for (const [rel, content] of Object.entries(rendered)) {
@@ -83,15 +100,7 @@ export async function upgradeProject({ root = process.cwd(), templateDir, force 
       kept.push(rel);
     }
   }
-  const packageChanges = fresh.syncPackageJson(config, root);
-  const changelog = fs.readFileSync(path.join(root, 'framework/CHANGELOG.md'), 'utf8');
-  const notes = notesBetween(changelog, config.frameworkVersion, target);
-  const from = config.frameworkVersion;
-  config.frameworkVersion = target;
-  config.files = manifestOf(root, updated);
-  for (const rel of kept) delete config.files[rel];
-  writeConfig(config, root);
-  return { status: 'upgraded', from, to: target, updated, kept, packageChanges, notes };
+  return { updated, kept };
 }
 
 /** Gets the template at `ref` (or the default branch) with gh, so private repositories work. Returns the folder. */
