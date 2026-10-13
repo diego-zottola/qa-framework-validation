@@ -11,7 +11,7 @@ export class EditorPage extends BasePage {
     this.breadcrumb = page.getByRole('navigation', { name: 'Ruta de la página' });
     this.shareButton = page.getByRole('button', { name: 'Compartir', exact: true });
     this.moveButton = page.getByRole('button', { name: 'Mover', exact: true });
-    this.archiveButton = page.getByRole('button', { name: 'Archivar página', exact: true });
+    this.archiveButton = page.getByRole('button', { name: 'Archivar', exact: true });
     this.readOnlyBadge = page.getByText('Solo lectura');
     this.emptyNotice = page.getByText('Esta página está vacía.');
     this.archiveConfirm = page.getByRole('alertdialog', { name: '¿Archivar esta página?' });

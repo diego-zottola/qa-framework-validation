@@ -6,14 +6,14 @@ export class WorkspacePage extends BasePage {
     super(page);
     this.switcher = page.getByRole('button', { name: 'Cambiar de espacio de trabajo' });
     this.searchButton = page.getByRole('button', { name: /^Buscar/ });
-    this.newPageButton = page.getByRole('button', { name: 'Crear página nueva' });
+    this.newPageButton = page.getByRole('button', { name: 'Nueva página' });
     this.pageTree = page.getByRole('navigation', { name: 'Páginas' });
     this.trashLink = page.getByRole('link', { name: 'Papelera' });
     this.membersLink = page.getByRole('link', { name: 'Miembros' });
     this.groupsLink = page.getByRole('link', { name: 'Grupos' });
     this.settingsLink = page.getByRole('link', { name: 'Preferencias' });
     this.profileLink = page.getByRole('link', { name: 'Perfil' });
-    this.signOutButton = page.getByRole('button', { name: 'Terminar sesión' });
+    this.signOutButton = page.getByRole('button', { name: 'Cerrar sesión' });
     this.heading = page.getByRole('heading', { level: 1 });
     this.searchDialog = page.getByRole('dialog', { name: 'Buscar' });
     this.searchBox = page.getByRole('searchbox', { name: 'Buscar páginas' });
