@@ -1,5 +1,5 @@
 {
-  "frameworkVersion": "1.1.0",
+  "frameworkVersion": "1.1.1",
   "app": {
     "name": "Notion Knockoff",
     "slug": "notion-knockoff",
@@ -38,9 +38,9 @@
     "includeTraces": "auto"
   },
   "files": {
-    "framework/CHANGELOG.md": "aa1b1d8063cbd424d212439d2080abe650ee9460be5628f90ed80aff9acd3e70",
+    "framework/CHANGELOG.md": "28b2db8be43bce820b3041f22c2ac720d63676595aa655b669d7f52e684437a3",
     "framework/README.md": "d138d0ebc3acaf1af4e2c9fe0157f592bb8ce416fb1c07aec80b80e50102d059",
-    "framework/VERSION": "1575e1af4a95f12f70b4ee6a6adce8160953d93ea17dc2611b90883ccc3ad3b8",
+    "framework/VERSION": "cc52f678848b814373757b460383bf61960e4943c203735adde0a350b3e50989",
     "framework/bin/qa.mjs": "85423fb0f63caf48f3e1df466b3ffacb60c0caf150b2321d92c15cf27dd0fa09",
     "framework/lib/api/coverage.js": "8dd6d7802ac1bd493c870cd4d23387273a0eb183651d85601d6d0a18802e9f43",
     "framework/lib/api/discover.js": "bb9c7bdda6e2bd2ee55e4eb67d0e1384057c367dca73501237b1565fa01eeb13",
@@ -52,7 +52,7 @@
     "framework/lib/catalog.js": "0f32c6a6b8835ebcfd11c61c687d9be7942b518f10b537c05fce93a3fd87fed3",
     "framework/lib/collect.js": "4f160b2ee0d3a558e55a3e98238f9410970274bda989368ae3af77dfc7acfd2d",
     "framework/lib/config.js": "e08dc49a46d86cdef198ec739e677e08cbe51e2659befd1e696b63766b55a166",
-    "framework/lib/diagnosis.js": "8740267ae1dfcd8085ab831dd7703440e4cc9b8d85c4faac604371f00e5b7427",
+    "framework/lib/diagnosis.js": "a20e1dd1dbc0e92762f4ace0618eda44f02f5bed3e0731bb60508ff7e228ceca",
     "framework/lib/doctor.js": "5c4750549fcfbe9c15d1422b3ddcf2428bab6b0adcc80e673eb3044dc2cc16d7",
     "framework/lib/env.js": "ad7fddc95f73cd0c1f421fc3044ec4fddcad637aa5881a80b5d1248ec78eecf7",
     "framework/lib/envvars.js": "96fd9f257a5972eb584bd2bc9548edae3cca4cbe85df40476dbbc53a8f7d170d",
@@ -106,7 +106,7 @@
     "framework/templates/visual.js": "7fea249e673facaf8889bea56e8c906dcb51f669ce56f4b2e5a6067a0da3aabc",
     "framework/test/api.test.js": "dc6556f0c153c16a5a10398ecac98847e864e03c39fe844c50494f84c1877075",
     "framework/test/catalog.test.js": "d091989b91e740f598c6a6b877f1b66da145d89ee82fe6ce093d6b6e7426472f",
-    "framework/test/diagnosis.test.js": "cf0aaeb29d9de596681771c39c42802651821139cc99b389f45e4607bd392c9b",
+    "framework/test/diagnosis.test.js": "3a5f84eb0e6bfe2f5af0d0ddcbd37f4058358be4b8110142a79d1421a0d3df64",
     "framework/test/doctor.test.js": "17f3e08254906605ccf6ca9df27b71d520d93a616c9970498f875e93efb555f2",
     "framework/test/envvars.test.js": "61ed677106aecfb85fa5a6839a6981d8af905319d15d792dd3c2a18f4e8d2b14",
     "framework/test/fixture-app.js": "8cb86bc6e22ccec6c153eb1191d0040caa7e3971d2b52d4350e8b6c22d480bd0",
@@ -122,7 +122,7 @@
     "framework/test/site.test.js": "d42d7317c0b4d51a7f7c731d549296f473549483102a04b58925ae0e6c0df06e",
     "framework/test/tcm.test.js": "ac8000729784d44a4421eacbd00c2e4f9e18dcccecbd14276a451ec5ef3c2b70",
     "framework/test/tickets.test.js": "e48244b9ebab5857e7787358463411e63f3659617497e7dd623a46a250454b3d",
-    "framework/test/upgrade.test.js": "d5af7bb102f259873834b8ba52e2b923d9d18236f38bd243d9f0f639a25ad0ac",
+    "framework/test/upgrade.test.js": "d4b1928cd7beb3b1e2ce8352275ab48e9bd922e8bbc7fae2bde78733822127ff",
     "framework/test/visual.test.js": "c6162b310fd17f7fa7d9b38d8aa9d3f0d4d5573f6da911e2a87b77f29d317a39",
     "framework/workflows/checks.yml": "b7e587133b5501396a581d3fbec8780d9c8fba994589ce23d674991273a4b041",
     "framework/workflows/pages.yml": "e739d56a6953288dd01fbd556546ca611907a7e0feaa6f6d39e12068ee0b3928",

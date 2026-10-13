@@ -58,7 +58,8 @@ test('report: flaky tests are flaky, annotated defects are known, and counts add
   const d = diagnoseReport(report);
   assert.deepEqual(d.counts, { selector: 1, 'known-defect': 1, flaky: 1, unknown: 1 });
   const flaky = d.items.find((i) => i.title.includes('flaky'));
-  assert.deepEqual(flaky.alternatives, ['infra']);
+  assert.deepEqual(flaky.causes, ['infra']);
+  assert.match(flaky.reason, /first error: page\.goto: net::ERR_CONNECTION_RESET/);
   assert.match(d.items.find((i) => i.title.includes('defect')).reason, /DEF-01/);
   assert.equal(d.setupErrors[0].category, 'auth');
   const md = renderDiagnosisMarkdown(d);

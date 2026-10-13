@@ -60,7 +60,8 @@ export function diagnoseReport(report) {
     const causes = [...new Set(diagnosed.map((d) => d.category))];
     let result = { ...last };
     if (test.status === 'flaky') {
-      result = { category: 'flaky', confidence: 'high', reason: `passed on retry ${attempts.length}; failed attempts looked like: ${causes.join(', ')}`, alternatives: causes };
+      const firstLine = clean(failed[0]?.error?.message ?? '').split('\n').find((l) => l.trim())?.trim().slice(0, 140) ?? '';
+      result = { category: 'flaky', confidence: 'high', reason: `passed on attempt ${attempts.length}; the failed attempts looked like ${causes.join('/')}${firstLine ? ` (first error: ${firstLine})` : ''}`, alternatives: [], causes };
     } else if (annotations.some((a) => a.type === 'defect')) {
       result = { category: 'known-defect', confidence: 'high', reason: `annotated defect ${annotations.find((a) => a.type === 'defect').description ?? ''}`.trim(), alternatives: [last.category] };
     }

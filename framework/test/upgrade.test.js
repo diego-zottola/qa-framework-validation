@@ -8,6 +8,8 @@ import { runDoctor } from '../lib/doctor.js';
 import { scaffoldedProject, tempDir } from './helpers.js';
 
 const repo = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
+const CURRENT = fs.readFileSync(path.join(repo, 'framework/VERSION'), 'utf8').trim();
+const NEXT = (([major, minor]) => `${major}.${Number(minor) + 1}.0`)(CURRENT.split('.'));
 
 /** A project as `init` leaves it: framework/ present (it came with the template), scaffold run, manifest recorded. */
 function newProject() {
@@ -20,7 +22,7 @@ function newProject() {
 }
 
 /** The "next release" of the template: same framework, a new version, a changelog entry and a changed workflow template. */
-function nextRelease(version = '1.2.0') {
+function nextRelease(version = NEXT) {
   const dir = tempDir('qa-template-');
   fs.cpSync(path.join(repo, 'framework'), path.join(dir, 'framework'), { recursive: true });
   fs.writeFileSync(path.join(dir, 'framework/VERSION'), `${version}\n`);
@@ -44,16 +46,16 @@ test('a project is upgraded: framework replaced, pristine workflows regenerated,
   const oldConfig = readConfig(root);
   const result = await upgradeProject({ root, templateDir: nextRelease() });
   assert.equal(result.status, 'upgraded');
-  assert.equal(`${result.from} -> ${result.to}`, '1.1.0 -> 1.2.0');
+  assert.equal(`${result.from} -> ${result.to}`, `${CURRENT} -> ${NEXT}`);
   assert.ok(fs.existsSync(path.join(root, 'framework/lib/new-feature.js')));
-  assert.match(fs.readFileSync(path.join(root, '.github/workflows/smoke.yml'), 'utf8'), /from release 1\.2\.0/);
+  assert.match(fs.readFileSync(path.join(root, '.github/workflows/smoke.yml'), 'utf8'), new RegExp(`from release ${NEXT.replaceAll('.', '\\.')}`));
   assert.ok(result.updated.includes('.github/workflows/smoke.yml'));
   assert.deepEqual(result.kept, []);
   assert.match(result.notes[0].notes, /Manual step: add the new fixture/);
   const config = readConfig(root);
-  assert.equal(config.frameworkVersion, '1.2.0');
+  assert.equal(config.frameworkVersion, NEXT);
   assert.notDeepEqual(config.files, oldConfig.files);
-  assert.equal(fs.readFileSync(path.join(root, 'framework/VERSION'), 'utf8').trim(), '1.2.0');
+  assert.equal(fs.readFileSync(path.join(root, 'framework/VERSION'), 'utf8').trim(), NEXT);
   assert.deepEqual(runDoctor(root).filter((i) => i.level === 'error'), []);
   assert.equal((await upgradeProject({ root, templateDir: nextRelease() })).status, 'up-to-date');
 });
@@ -65,7 +67,7 @@ test('a customized workflow is kept, and the new version is written aside for a 
   const result = await upgradeProject({ root, templateDir: nextRelease() });
   assert.deepEqual(result.kept, ['.github/workflows/smoke.yml']);
   assert.match(fs.readFileSync(smoke, 'utf8'), /our own change/);
-  assert.match(fs.readFileSync(path.join(root, '.qa-out/upgrade/.github/workflows/smoke.yml'), 'utf8'), /from release 1\.2\.0/);
+  assert.match(fs.readFileSync(path.join(root, '.qa-out/upgrade/.github/workflows/smoke.yml'), 'utf8'), new RegExp(`from release ${NEXT.replaceAll('.', '\\.')}`));
   assert.ok(result.updated.includes('.github/workflows/regression.yml'), 'the others are still updated');
 });
 
@@ -75,7 +77,7 @@ test('edited framework files block the upgrade unless forced, and nothing is cha
   const blocked = await upgradeProject({ root, templateDir: nextRelease() });
   assert.equal(blocked.status, 'blocked');
   assert.deepEqual(blocked.modified, ['framework/lib/ids.js']);
-  assert.equal(readConfig(root).frameworkVersion, '1.1.0');
+  assert.equal(readConfig(root).frameworkVersion, CURRENT);
   assert.ok(!fs.existsSync(path.join(root, 'framework/lib/new-feature.js')));
   assert.equal((await upgradeProject({ root, templateDir: nextRelease(), force: true })).status, 'upgraded');
   assert.ok(!fs.readFileSync(path.join(root, 'framework/lib/ids.js'), 'utf8').includes('local hack'));

@@ -21,3 +21,8 @@ First versioned release of the shared core (everything under `framework/`).
 - `npm run qa -- sync` regenerates the workflows from `.qa-framework.json`; `npm run qa -- secrets` also uploads variables.
 - Diagnosis and healing reports are published as HTML pages and linked from the portal.
 - No manual step: projects on 1.0.0 only need `npm run qa -- upgrade`.
+
+## 1.1.1
+
+- Flaky tests in the diagnosis show the first error of the failed attempts.
+- No manual step.
