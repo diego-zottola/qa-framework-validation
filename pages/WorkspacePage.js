@@ -4,7 +4,7 @@ import { BasePage } from './BasePage.js';
 export class WorkspacePage extends BasePage {
   constructor(page) {
     super(page);
-    this.switcher = page.getByRole('button', { name: 'Cambiar de espacio de trabajo actual' });
+    this.switcher = page.getByRole('button', { name: 'Cambiar de espacio de trabajo' });
     this.searchButton = page.getByRole('button', { name: /^Buscar/ });
     this.newPageButton = page.getByRole('button', { name: 'Nueva página' });
     this.pageTree = page.getByRole('navigation', { name: 'Páginas' });
