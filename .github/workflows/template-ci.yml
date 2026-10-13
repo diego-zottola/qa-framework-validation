@@ -1,0 +1,26 @@
+name: Template CI
+
+# Checks the framework itself. Projects created from this template skip it (see the repository guard),
+# and `init` deletes this file.
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    if: github.repository == 'AzumoHQ/ai-driven-automation-framework-template'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run test:framework

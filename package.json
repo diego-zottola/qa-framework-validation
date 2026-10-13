@@ -1,0 +1,44 @@
+{
+  "name": "ai-driven-automation-framework",
+  "version": "1.0.0",
+  "description": "Reusable Playwright test automation template: guided init, catalog, reports on GitHub Pages, API seed/cleanup, selector healer in suggestion mode.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "init": "node scripts/init.mjs",
+    "setup": "npm install && npx playwright install --with-deps",
+    "test": "npx playwright test --project=chromium",
+    "test:smoke": "npx playwright test --project=chromium tests/smoke-tests",
+    "test:regression": "npx playwright test --project=chromium tests/regression",
+    "test:api": "npx playwright test --project=api",
+    "test:framework": "node --test framework/test/*.test.js",
+    "report:allure": "allure generate allure-results --clean -o allure-report",
+    "report:open": "allure open allure-report",
+    "qa": "node framework/bin/qa.mjs",
+    "doctor": "node framework/bin/qa.mjs doctor",
+    "catalog": "node framework/bin/qa.mjs catalog --check",
+    "lint": "eslint . --ext .js,.mjs",
+    "lint:fix": "eslint . --ext .js,.mjs --fix",
+    "format": "prettier --write 'framework/**/*.{js,mjs}' 'scripts/*.mjs'",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "allure-commandline": "2.46.1",
+    "allure-js-commons": "3.13.0",
+    "allure-playwright": "3.13.0",
+    "dotenv": "18.0.7",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^9.1.2",
+    "prettier": "^3.9.6",
+    "typescript": "^6.0.3",
+    "yaml": "2.9.1"
+  },
+  "dependencies": {
+    "@playwright/test": "1.64.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

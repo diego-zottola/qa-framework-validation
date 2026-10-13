@@ -1,0 +1,4 @@
+- [Project context](project_context.md) — test count, last TC, folder structure, phase status
+- [Next task](project_next_task.md) — ticket queue and status
+- [Ticket board reference](reference_ticket_board.md) — where {{APP_NAME}}'s tickets are tracked
+- [Coverage map](reference_coverage_map.md) — feature-by-feature test coverage, checked before writing new tests
