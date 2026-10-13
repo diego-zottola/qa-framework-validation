@@ -4,7 +4,7 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import { chromium } from '@playwright/test';
-import { loginProfiles } from '../lib/login.js';
+import { loginProfiles, ensureProfileLogin } from '../lib/login.js';
 import { tempDir } from './helpers.js';
 
 const PAGE = `<!doctype html><form id=f><input name=user><input type=password name=pw>
@@ -59,6 +59,37 @@ test('missing credentials fail with the env var names, not the values', async ()
   try {
     const profiles = { admin: { name: 'admin', baseUrl: 'http://x', credentialsEnvPrefix: 'ADMIN_USER', storageStatePath: 'auth/a.json' } };
     await assert.rejects(loginProfiles({ browser, profiles, root: tempDir(), env: {} }), /ADMIN_USER_USERNAME/);
+  } finally {
+    await browser.close();
+  }
+});
+
+test('ensureProfileLogin keeps a fresh storage state and logs in again when it is missing or old (expired tokens broke sweep)', async () => {
+  const root = tempDir();
+  const browser = await chromium.launch();
+  try {
+    let logins = 0;
+    const login = async (page) => {
+      logins++;
+      await page.context().addCookies([{ name: 'session', value: 'ok', url: 'http://127.0.0.1' }]);
+    };
+    const profile = { name: 'default', baseUrl: 'http://127.0.0.1', credentialsEnvPrefix: 'TEST_USER', storageStatePath: 'auth/default.storageState.json' };
+    const env = { TEST_USER_USERNAME: 'qa', TEST_USER_PASSWORD: 'good' };
+    await ensureProfileLogin({ browser, profile, root, env, login });
+    assert.equal(logins, 1, 'missing file: logs in');
+    await ensureProfileLogin({ browser, profile, root, env, login });
+    assert.equal(logins, 1, 'fresh file: reused');
+    const file = path.join(root, 'auth/default.storageState.json');
+    const old = new Date(Date.now() - 3 * 3_600_000);
+    fs.utimesSync(file, old, old);
+    await ensureProfileLogin({ browser, profile, root, env, login });
+    assert.equal(logins, 2, 'old file: logs in again');
+    assert.ok(Date.now() - fs.statSync(file).mtimeMs < 60_000, 'the file was rewritten');
+    const manual = { ...profile, name: 'manual', login: 'manual', storageStatePath: 'auth/manual.storageState.json' };
+    fs.writeFileSync(path.join(root, manual.storageStatePath), '{}');
+    fs.utimesSync(path.join(root, manual.storageStatePath), old, old);
+    await ensureProfileLogin({ browser, profile: manual, root, env, login });
+    assert.equal(logins, 2, 'a manual profile is never re-created');
   } finally {
     await browser.close();
   }

@@ -1,5 +1,5 @@
 {
-  "frameworkVersion": "1.2.3",
+  "frameworkVersion": "1.2.4",
   "app": {
     "name": "Notion Knockoff",
     "slug": "notion-knockoff",
@@ -38,9 +38,9 @@
     "includeTraces": "auto"
   },
   "files": {
-    "framework/CHANGELOG.md": "8f2b200d7d4809a1d4ad19715acb82fb2ff53823ce43c8481b1cd8d06626e748",
+    "framework/CHANGELOG.md": "b5ef2f26f3b7b94f0eeb9cef5da8f7972ccdaecc7a6b5463aaa58a12e64d3936",
     "framework/README.md": "65620efe390e9eea374ae073c7a591273b44f456334f1112c69054f44e408cbb",
-    "framework/VERSION": "d82f34ae9aa41bc4a0cb529a1ac0898fed09d6b479fb1cc44cb66c34f15ee84d",
+    "framework/VERSION": "563a0b4eec3c77bbc34ac630d4fa5214f5c6726ae01468404fd704473110084e",
     "framework/bin/qa.mjs": "316b0150a84a9ed940247147838a388f7d5d21a7c264c1faa61a9d60f0e3651c",
     "framework/lib/api/coverage.js": "8dd6d7802ac1bd493c870cd4d23387273a0eb183651d85601d6d0a18802e9f43",
     "framework/lib/api/discover.js": "bb9c7bdda6e2bd2ee55e4eb67d0e1384057c367dca73501237b1565fa01eeb13",
@@ -67,7 +67,7 @@
     "framework/lib/integrations/notify.js": "6cfffd5f3f21bb2861a0185e09d44d2fb535d7b00178caac411d919683709b19",
     "framework/lib/integrations/slack.js": "4e252d9ccfadb54e2750fd043e66fcb5932d2f999f12725ea4be7445d8aaf9ef",
     "framework/lib/llm/index.js": "dc3345dcac240238b597e6a4af338d2c1f5fa99f8e28e9c0ee70a5501a33668f",
-    "framework/lib/login.js": "566742a8150abac3c12ae10eac2d0b2350f3679105186777266a0a722ebbcd57",
+    "framework/lib/login.js": "31df1286501fb2050785ccd1c211fb9bbda5194d5b33532e78a095e40eb0ef52",
     "framework/lib/risk.js": "d2ee6201dd095611d009f01f3f5655f70a4cb481050d59725cb24c7a537b340d",
     "framework/lib/scaffold.js": "3fa26e1e5e889e825ec9f4479d0f0c4c25a9449b2d4f6c0392704df7f86eb705",
     "framework/lib/secrets.js": "05ce2d118c70e6701a9d48821397097696e5094927e9ac1eb6394987752e3659",
@@ -111,7 +111,7 @@
     "framework/test/helpers.js": "bc5e35326bf6999d817f986fa54ba7b0daaf59f4df27b21eb94ec4d9fa2623f2",
     "framework/test/init.e2e.test.js": "e2703f5ef7e2160617ba69422c4d4c432e679d0d92d40e157e9f07912fd3ade0",
     "framework/test/integrations.test.js": "4cfc929e841c702f284ef5b939bbf0c69f7997f951821b23570359d406b0cd14",
-    "framework/test/login.test.js": "0e657e4884023623e44917d4d7aff61565e34e1e74c86c9266e925d4ff5bb1e3",
+    "framework/test/login.test.js": "8bb1fef7cad7b16b38dc971a0d98293da3d444ef65dc5ccb1c5ae28f74065fc8",
     "framework/test/mock-api.js": "610274d186b5a95714c036659e2b781a8d9337b61eecd2c3c7e1922d4e6f9371",
     "framework/test/risk.test.js": "3e3d5487d42880e0e01e7abc07aeba910b47a67f42515020eff60444bf325526",
     "framework/test/scaffold.test.js": "adc320d0c912b11ffebba3ff83b019f30c4759563ad456b186134be6ef29290d",

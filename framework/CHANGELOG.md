@@ -83,3 +83,9 @@ Review of the healer, publication and workflow permissions.
 - Healer: failures reported by `locator.waitFor` ("waiting for <locator> to be visible") are read correctly; they were reported as unsupported.
   Found on a real run.
 - No manual step.
+
+## 1.2.4
+
+- `sweep` and `api-discover` log in again when the saved storage state is older than 30 minutes (an old file from an earlier day made them fail with
+  "JWT expired"). Manual-login profiles are never re-created.
+- No manual step.

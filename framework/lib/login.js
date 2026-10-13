@@ -54,8 +54,14 @@ export async function loginProfiles({ browser, profiles, root = process.cwd(), l
   }
 }
 
-/** Makes sure one profile has a storage state, logging in only when the file is missing. */
-export async function ensureProfileLogin({ browser, profile, root = process.cwd(), env = process.env, login }) {
-  if (fs.existsSync(path.resolve(root, profile.storageStatePath))) return;
+export const STORAGE_STATE_MAX_AGE_MS = 30 * 60 * 1000;
+
+/**
+ * Makes sure one profile has a usable storage state: logs in when the file is missing or older than `maxAgeMs`
+ * (session tokens expire, so an old file from an earlier day makes `sweep` and `api-discover` fail with 401).
+ */
+export async function ensureProfileLogin({ browser, profile, root = process.cwd(), env = process.env, login, maxAgeMs = STORAGE_STATE_MAX_AGE_MS, now = Date.now() }) {
+  const file = path.resolve(root, profile.storageStatePath);
+  if (fs.existsSync(file) && now - fs.statSync(file).mtimeMs < maxAgeMs) return;
   await loginProfiles({ browser, profiles: { [profile.name]: profile }, root, env, login });
 }
