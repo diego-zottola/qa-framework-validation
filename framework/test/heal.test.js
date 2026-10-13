@@ -430,17 +430,19 @@ test('look-alike names that mean another action are rejected, not suggested', ()
   assert.deepEqual(mixed.differences, { removed: ['pagina'], added: [] });
 });
 
-test('a candidate whose name another locator already targets is rejected as a different element', () => {
+test('a candidate whose name another locator already targets goes to review: in the report, not in the patch', () => {
   const root = project({
     'pages/S.js': "this.save = page.getByRole('button', { name: 'Guardar' });\nthis.saveCopy = page.getByRole('button', { name: 'Guardar cambios' });\n",
     'tests/a.spec.js': '',
   });
   const action = "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: 'Guardar' })\n";
   const report = buildHealReport({ root, report: { config: { rootDir: path.join(root, 'tests') }, suites: [{ specs: [failedSpec('TC1 renamed', action, attach(suggested))] }] } });
-  assert.equal(report.proposals[0].status, 'rejected');
+  assert.equal(report.proposals[0].status, 'needs-review');
   assert.match(report.proposals[0].reason, /already used by other locators \(pages\/S\.js:2\)/);
-  assert.equal(writeHealReport(report, root).proposals[0].diff, undefined);
-  assert.equal(fs.readFileSync(path.join(root, '.qa-out/heal/heal.patch'), 'utf8'), '', 'no patch for a rejected candidate');
+  const written = writeHealReport(report, root);
+  assert.match(written.proposals[0].diff, /Guardar cambios/, 'the diff is shown for a person to apply by hand');
+  assert.equal(fs.readFileSync(path.join(root, '.qa-out/heal/heal.patch'), 'utf8'), '', 'but it is not part of the patch');
+  assert.match(renderHealMarkdown(written), /needs-review\*\* \(not a confirmed fix/);
 });
 
 test('an ambiguous candidate and a failed assertion produce no diff and no patch', () => {

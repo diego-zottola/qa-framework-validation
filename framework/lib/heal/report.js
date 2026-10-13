@@ -60,10 +60,23 @@ function locate({ entry, parsed, suggestion, root }) {
   if (located.status !== 'found') return { ...entry, status: located.status, reason: located.reason, candidate: suggestion.candidate, replacement: suggestion.replacement, locations: located.locations, proposedBy: suggestion.proposedBy };
   const before = fs.readFileSync(path.join(root, located.file), 'utf8');
   const elsewhere = suggestion.candidate ? findNameElsewhere({ root, name: suggestion.candidate.name, except: located }) : [];
-  if (elsewhere.length) {
-    return { ...entry, status: 'rejected', reason: `the candidate name "${suggestion.candidate.name}" is already used by other locators (${elsewhere.slice(0, 3).join(', ')}): it is probably a different element, not the renamed one`, candidate: suggestion.candidate, proposedBy: suggestion.proposedBy };
-  }
   const after = applyReplacement(before, located, suggestion.replacement);
+  if (elsewhere.length) {
+    // The same label is often legitimately reused (a button and its confirmation dialog), so this is not a rejection,
+    // but it is not safe enough for the patch: the diff stays in the report for a person to apply by hand.
+    return {
+      ...entry,
+      status: 'needs-review',
+      reviewRequired: true,
+      reason: `the candidate name "${suggestion.candidate.name}" is already used by other locators (${elsewhere.slice(0, 3).join(', ')}): it may be a different element than the renamed one. Not included in heal.patch`,
+      candidate: suggestion.candidate,
+      differences: suggestion.differences,
+      replacement: suggestion.replacement,
+      proposedBy: suggestion.proposedBy ?? 'rules',
+      source: { file: located.file, line: located.line, sha256: sha256(before) },
+      diff: unifiedDiff(located.file, before, after),
+    };
+  }
   return {
     ...entry,
     status: 'suggested',

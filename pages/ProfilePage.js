@@ -6,7 +6,7 @@ export class ProfilePage extends BasePage {
     super(page);
     this.heading = page.getByRole('heading', { name: 'Perfil', level: 1 });
     this.nameInput = page.getByRole('textbox', { name: 'Nombre' });
-    this.saveNameButton = page.getByRole('button', { name: 'Guardar nombre' });
+    this.saveNameButton = page.getByRole('button', { name: 'Guardar nombre de usuario' });
     this.workspaces = page.getByRole('list', { name: 'Tus espacios' });
   }
 

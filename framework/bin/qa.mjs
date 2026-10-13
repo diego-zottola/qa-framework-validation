@@ -254,7 +254,7 @@ const commands = {
       for (const item of result.items) console.log(`  ${item.state === 'current' ? 'ok   ' : 'STALE'} ${item.file}: ${item.title}${item.reason ? ` (${item.reason})` : ''}`);
       if (apply) console.log(`  git apply --check: ${apply.status === 0 ? 'applies cleanly' : `does not apply (${apply.stderr.split('\n')[0]})`}`);
       const ok = result.stale === 0 && (!apply || apply.status === 0) && result.items.length > 0;
-      console.log(ok ? 'heal check: safe to review and apply (still needs a person to confirm each candidate)' : 'heal check: do not apply; regenerate the suggestions from a new run');
+      console.log(ok ? 'heal check: the patch fits this code; a person still has to confirm each candidate before applying it' : result.items.length === 0 ? 'heal check: this report has no suggested change to apply' : 'heal check: do not apply; regenerate the suggestions from a new run');
       process.exit(ok ? 0 : 1);
     }
     const file = arg(args, '--results', 'playwright-report/results.json');

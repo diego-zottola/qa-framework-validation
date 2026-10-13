@@ -120,7 +120,8 @@ confidence is shown, only a similarity and the words that changed), and not a di
 
 - names that mean something else are rejected even when they look alike: opposite verbs ("Archivar"/"Desarchivar", "Abrir"/"Cerrar"), negations,
   scope words ("Eliminar" vs "Eliminar para siempre", "todos"); rejected look-alikes are listed in the report;
-- a candidate whose name another locator in the project already targets is rejected (it is another element with its own purpose);
+- a candidate whose name another locator in the project already targets is marked `needs-review`: the diff stays in the report but not in `heal.patch`
+  (a real project reuses one label for a button and its confirmation dialog, so this cannot be a rejection);
 - assertions (`expect`), known defects, ambiguous locators and removed elements get no suggestion, with the reason.
 
 `--verify` re-runs exactly one test (file, line, title) with the change applied, then restores the file: own output folder (the original failure

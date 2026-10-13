@@ -70,3 +70,10 @@ Review of the healer, publication and workflow permissions.
 - Publish reports: when GitHub Pages is not enabled (private repository on a free plan, or not set up yet) the deploy job is skipped with a notice
   instead of failing every run; reports still reach the `qa-reports` branch.
 - No manual step.
+
+## 1.2.2
+
+- Healer: a candidate whose name another locator already uses is `needs-review` (diff in the report, not in `heal.patch`) instead of rejected.
+  Found on a real project, where "Archivar" is both the archive button and its confirmation button.
+- `heal check` says plainly when a report has nothing to apply.
+- No manual step.

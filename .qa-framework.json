@@ -1,5 +1,5 @@
 {
-  "frameworkVersion": "1.2.1",
+  "frameworkVersion": "1.2.2",
   "app": {
     "name": "Notion Knockoff",
     "slug": "notion-knockoff",
@@ -38,10 +38,10 @@
     "includeTraces": "auto"
   },
   "files": {
-    "framework/CHANGELOG.md": "400ee4f370f6497e34c9597d4c15d6c30e4d9e80d58b9cd2575c6d0d2c976caa",
-    "framework/README.md": "eeb1f93075f80272eb8fe103b34e854d3ae6cd633448fc30c6be3476d67dba0b",
-    "framework/VERSION": "6cf4e084b47f33c9b02ef79279d157833868f8f70514169a768be353ee328fea",
-    "framework/bin/qa.mjs": "9529e317bb1cd03f9c216217b9b4fdfd5a2944ebb16ab8121cc0a4c1dfc50506",
+    "framework/CHANGELOG.md": "d075cc8a66c7cd942bd00602d9f7c4cee5ec05b85f03e5159f8d015a07fa90d6",
+    "framework/README.md": "65620efe390e9eea374ae073c7a591273b44f456334f1112c69054f44e408cbb",
+    "framework/VERSION": "c62a5cc61ac4525935753f5ec284c0a052a4b1da4b3a3580dce2b7d77a2154ae",
+    "framework/bin/qa.mjs": "316b0150a84a9ed940247147838a388f7d5d21a7c264c1faa61a9d60f0e3651c",
     "framework/lib/api/coverage.js": "8dd6d7802ac1bd493c870cd4d23387273a0eb183651d85601d6d0a18802e9f43",
     "framework/lib/api/discover.js": "bb9c7bdda6e2bd2ee55e4eb67d0e1384057c367dca73501237b1565fa01eeb13",
     "framework/lib/api/normalize.js": "29c46b2312148132b95f435c901769e0e5b166fb5505872ad008368b68e0a1f4",
@@ -60,7 +60,7 @@
     "framework/lib/github.js": "32437a71ce21a2e73c3467340709e9a95f07dd063b18e9acc38ed6633af88998",
     "framework/lib/heal/llm-tier.js": "08d3b82f07214b3d1490f1f9f32dde01b3196a223ffe0f7c6c081fe16e48be9f",
     "framework/lib/heal/locator.js": "bc522123f2042538f4a5e46028407afd1dd7eebda3c54f74d9cbc71fccbdec11",
-    "framework/lib/heal/report.js": "e4b2d90975cbb84e4f281fa37dbbb5fa36c877910362a301f1ea969a637c777b",
+    "framework/lib/heal/report.js": "cfe721fcef52786ff86f5a889d78cc36bfa94c25444826722eb4aae8b00849b5",
     "framework/lib/heal/source.js": "996a6e12ee7f0dfbcf9a2067dd10fec2185e0349f2bb025be9bd553934e8e0e8",
     "framework/lib/ids.js": "c433e2e2abfdf32666acdb8a97175b29a36a7026ec9fbd099a04217f7fa80402",
     "framework/lib/integrations/jira.js": "dddfc29d823e06cf98aada5cc1c2cbc3bfed03d4c2503f11080beb46eba20d2f",
@@ -107,7 +107,7 @@
     "framework/test/envvars.test.js": "61ed677106aecfb85fa5a6839a6981d8af905319d15d792dd3c2a18f4e8d2b14",
     "framework/test/fixture-app.js": "8cb86bc6e22ccec6c153eb1191d0040caa7e3971d2b52d4350e8b6c22d480bd0",
     "framework/test/github.test.js": "9fc778a8fbcf222289f0913388d462d1c05fbe2dad600a3da2fc3f346fe010ef",
-    "framework/test/heal.test.js": "6b89d8fc89c1c06bde2067ce2c47ef9b1bd3d3a365114a37aec6007351f42a7b",
+    "framework/test/heal.test.js": "fbeba07819f82d090c37fc9186334e9f88945f7220d1e3bc6d679d969fd134ee",
     "framework/test/helpers.js": "bc5e35326bf6999d817f986fa54ba7b0daaf59f4df27b21eb94ec4d9fa2623f2",
     "framework/test/init.e2e.test.js": "e2703f5ef7e2160617ba69422c4d4c432e679d0d92d40e157e9f07912fd3ade0",
     "framework/test/integrations.test.js": "4cfc929e841c702f284ef5b939bbf0c69f7997f951821b23570359d406b0cd14",
