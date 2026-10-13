@@ -22,6 +22,13 @@ test('failures are read as action, assertion or strict, with the locator text', 
   assert.equal(parseFailure('boom').kind, 'unknown');
 });
 
+test('waitFor failures give the locator without the awaited state (found on a real run)', () => {
+  const waitFor = "TimeoutError: locator.waitFor: Timeout 10000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: 'Cambiar de espacio de trabajo actual' }) to be visible\n";
+  const failure = parseFailure(waitFor);
+  assert.deepEqual(failure, { kind: 'action', action: 'waitFor', expression: "getByRole('button', { name: 'Cambiar de espacio de trabajo actual' })" });
+  assert.equal(parseExpression(failure.expression).supported, true);
+});
+
 test('simple locators parse; scoped, filtered and regex ones are refused with a reason', () => {
   assert.deepEqual(parseExpression("getByRole('button', { name: 'Guardar', exact: true }).first()"), { supported: true, method: 'getByRole', role: 'button', text: 'Guardar', exact: true, chain: '.first()', exactGiven: true });
   assert.equal(parseExpression("getByText('Hola \\'mundo\\'')").text, "Hola 'mundo'");

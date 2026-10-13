@@ -77,3 +77,9 @@ Review of the healer, publication and workflow permissions.
   Found on a real project, where "Archivar" is both the archive button and its confirmation button.
 - `heal check` says plainly when a report has nothing to apply.
 - No manual step.
+
+## 1.2.3
+
+- Healer: failures reported by `locator.waitFor` ("waiting for <locator> to be visible") are read correctly; they were reported as unsupported.
+  Found on a real run.
+- No manual step.

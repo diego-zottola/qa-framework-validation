@@ -20,7 +20,9 @@ export function parseFailure(rawMessage) {
   const action = ACTION.exec(message);
   if (action) {
     const waiting = /waiting for (.+)$/m.exec(message);
-    return { kind: 'action', action: action[1], expression: waiting?.[1].trim() ?? null };
+    // waitFor reports "waiting for <locator> to be visible": the state is not part of the locator.
+    const expression = waiting?.[1].replace(/\s+to be (?:visible|hidden|enabled|stable|editable|attached|detached)\s*$/, '').trim() ?? null;
+    return { kind: 'action', action: action[1], expression };
   }
   return { kind: 'unknown', expression: null };
 }
