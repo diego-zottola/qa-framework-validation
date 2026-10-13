@@ -1,7 +1,7 @@
 {
-  "name": "ai-driven-automation-framework",
+  "name": "notion-knockoff",
   "version": "1.0.0",
-  "description": "Reusable Playwright test automation template: guided init, catalog, reports on GitHub Pages, API seed/cleanup, selector healer in suggestion mode.",
+  "description": "Playwright E2E automation for Notion Knockoff.",
   "private": true,
   "type": "module",
   "scripts": {
@@ -20,7 +20,10 @@
     "lint": "eslint . --ext .js,.mjs",
     "lint:fix": "eslint . --ext .js,.mjs --fix",
     "format": "prettier --write 'framework/**/*.{js,mjs}' 'scripts/*.mjs'",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "api:discover": "node framework/bin/qa.mjs api-discover",
+    "api:coverage": "node framework/bin/qa.mjs api-coverage",
+    "sweep": "node framework/bin/qa.mjs sweep"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^7.18.0",

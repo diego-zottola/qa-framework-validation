@@ -49,3 +49,8 @@ node_modules/
 .env.*
 !.env.example
 auth/*.storageState.json
+# Added by the framework
+playwright-report/
+.qa-out/
+qa-publish/
+qa-incoming/
