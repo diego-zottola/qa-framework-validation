@@ -62,6 +62,7 @@ jobs:
         if: always() && hashFiles('allure-results/*') != ''
         run: npm run qa -- publish-prepare --suite api
         env:
+          QA_PUBLISH_SCREENSHOTS: ${{ github.event.repository.private }}
           BASE_URL: ${{ secrets.BASE_URL }}
           TEST_USER_USERNAME: ${{ secrets.TEST_USER_USERNAME }}
           TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}

@@ -94,6 +94,42 @@ export function similarity(a, b) {
   return Math.max(jaccard, edit >= 0.7 ? edit : 0, contains);
 }
 
+// Words that turn an action into a different one. Similar spelling is not the same meaning: "Archivar" and
+// "Desarchivar" share almost every letter. Pairs are matched as whole words after normalization.
+const OPPOSITES = [
+  ['archivar', 'desarchivar'], ['abrir', 'cerrar'], ['mostrar', 'ocultar'], ['agregar', 'eliminar'], ['agregar', 'quitar'], ['crear', 'eliminar'],
+  ['crear', 'borrar'], ['anadir', 'eliminar'], ['activar', 'desactivar'], ['habilitar', 'deshabilitar'], ['aceptar', 'rechazar'], ['aceptar', 'cancelar'],
+  ['guardar', 'descartar'], ['subir', 'bajar'], ['siguiente', 'anterior'], ['entrar', 'salir'], ['iniciar', 'cerrar'], ['restaurar', 'eliminar'],
+  ['permitir', 'bloquear'], ['permitir', 'denegar'], ['importar', 'exportar'], ['expandir', 'contraer'], ['compartir', 'revocar'],
+  ['add', 'remove'], ['add', 'delete'], ['create', 'delete'], ['open', 'close'], ['show', 'hide'], ['enable', 'disable'], ['accept', 'reject'], ['accept', 'cancel'],
+  ['save', 'discard'], ['next', 'previous'], ['next', 'back'], ['up', 'down'], ['in', 'out'], ['login', 'logout'], ['import', 'export'], ['upload', 'download'],
+  ['expand', 'collapse'], ['lock', 'unlock'], ['select', 'deselect'], ['undo', 'redo'], ['start', 'stop'], ['yes', 'no'], ['allow', 'deny'], ['grant', 'revoke'],
+  ['share', 'unshare'], ['archive', 'unarchive'], ['archive', 'restore'], ['delete', 'restore'], ['pin', 'unpin'], ['subscribe', 'unsubscribe'], ['connect', 'disconnect'],
+  ['publish', 'unpublish'], ['invite', 'remove'], ['follow', 'unfollow'],
+];
+// Extra words that change the scope or severity of the same verb: "Eliminar" is not "Eliminar para siempre".
+const QUALIFIERS = new Set(['siempre', 'forever', 'permanently', 'permanentemente', 'permanente', 'definitivamente', 'definitivo', 'todo', 'todos', 'todas', 'all', 'everything', 'selected', 'seleccionados', 'seleccionadas', 'otros', 'others', 'cuenta', 'account']);
+const NEGATING = ['des', 'un', 'non', 'dis', 'de'];
+
+/** Why two names mean a different action even though they look alike, or null. Exported for tests. */
+export function actionConflict(original, candidate) {
+  const a = new Set(normalize(original).split(' '));
+  const b = new Set(normalize(candidate).split(' '));
+  const onlyA = [...a].filter((t) => !b.has(t));
+  const onlyB = [...b].filter((t) => !a.has(t));
+  for (const [x, y] of OPPOSITES) {
+    if ((onlyA.includes(x) && onlyB.includes(y)) || (onlyA.includes(y) && onlyB.includes(x))) return `"${x}" and "${y}" are opposite actions`;
+  }
+  for (const s of onlyA) {
+    for (const t of onlyB) {
+      for (const [short, long] of [[s, t], [t, s]]) if (short.length >= 3 && NEGATING.some((p) => long === p + short)) return `"${long}" negates "${short}"`;
+    }
+  }
+  const extra = [...onlyA, ...onlyB].find((t) => QUALIFIERS.has(t));
+  if (extra) return `"${extra}" changes the scope of the action`;
+  return null;
+}
+
 const TEXT_ROLES = ['button', 'link', 'heading', 'tab', 'menuitem', 'option', 'checkbox', 'radio', 'switch'];
 const FIELD_ROLES = ['textbox', 'combobox', 'searchbox', 'checkbox', 'radio', 'switch', 'spinbutton', 'slider'];
 const ROLES_FOR = { getByText: TEXT_ROLES, getByLabel: FIELD_ROLES, getByPlaceholder: ['textbox', 'searchbox', 'combobox'], getByTitle: TEXT_ROLES };
@@ -122,15 +158,27 @@ export function proposeReplacement({ parsed, snapshot, action }) {
     return { status: 'none', reason: 'an element with the original name exists in the snapshot: the failure is about state, visibility or timing, not the name' };
   }
   const seen = new Map();
+  const lookalikes = [];
   for (const n of pool) {
     if (NEEDS_ENABLED.has(action) && n.disabled) continue;
     const key = `${n.role}\u0000${n.name}`;
-    if (!seen.has(key)) seen.set(key, { role: n.role, name: n.name, score: similarity(parsed.text, n.name), copies: 0 });
-    seen.get(key).copies++;
+    if (!seen.has(key)) {
+      const score = similarity(parsed.text, n.name);
+      const conflict = score >= THRESHOLD ? actionConflict(parsed.text, n.name) : null;
+      if (conflict) {
+        seen.set(key, null);
+        lookalikes.push({ role: n.role, name: n.name, score: round(score), reason: conflict });
+      } else seen.set(key, { role: n.role, name: n.name, score, copies: 0 });
+    }
+    const entry = seen.get(key);
+    if (entry) entry.copies++;
   }
-  const ranked = [...seen.values()].sort((a, b) => b.score - a.score);
+  const ranked = [...seen.values()].filter(Boolean).sort((a, b) => b.score - a.score);
   const [best, second] = ranked;
-  if (!best || best.score < THRESHOLD) return { status: 'none', reason: 'no element of the same kind has a similar name: the element may have been removed (possible product change)' };
+  if (!best || best.score < THRESHOLD) {
+    if (lookalikes.length) return { status: 'none', reason: `the closest names look like a different action (${lookalikes[0].reason}): "${lookalikes[0].name}" was rejected`, rejectedLookalikes: lookalikes };
+    return { status: 'none', reason: 'no element of the same kind has a similar name: the element may have been removed (possible product change)' };
+  }
   if (second && best.score - second.score < MARGIN) return { status: 'ambiguous', reason: 'several elements look equally close', alternatives: ranked.slice(0, 3).filter((r) => r.score >= 0.4).map(({ role, name, score }) => ({ role, name, score: round(score) })) };
   if (best.copies > 1) return { status: 'ambiguous', reason: `${best.copies} elements share the name "${best.name}"`, alternatives: [{ role: best.role, name: best.name, score: round(best.score) }] };
   const replacement = `getByRole(${quote(best.role)}, { name: ${quote(best.name)}, exact: true })${parsed.chain}`;
@@ -139,8 +187,17 @@ export function proposeReplacement({ parsed, snapshot, action }) {
     candidate: { role: best.role, name: best.name, score: round(best.score) },
     replacement,
     alternatives: ranked.slice(1, 3).filter((r) => r.score >= 0.4).map(({ role, name, score }) => ({ role, name, score: round(score) })),
-    checks: { uniqueInSnapshot: true, sameKind: true, threshold: THRESHOLD },
+    checks: { uniqueInSnapshot: true, sameKind: true, threshold: THRESHOLD, noOppositeAction: true },
+    ...(lookalikes.length && { rejectedLookalikes: lookalikes }),
+    differences: wordDifferences(parsed.text, best.name),
   };
+}
+
+/** Words only in the old name and only in the new one: shown to the reviewer, who decides if it is the same action. */
+function wordDifferences(original, candidate) {
+  const a = normalize(original).split(' ');
+  const b = normalize(candidate).split(' ');
+  return { removed: a.filter((t) => !b.includes(t)), added: b.filter((t) => !a.includes(t)) };
 }
 
 const round = (n) => Math.round(n * 100) / 100;

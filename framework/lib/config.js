@@ -22,7 +22,8 @@ export function defaultConfig(overrides = {}) {
     extraEnv: { secrets: [], variables: [] },
     retentionDays: 15,
     // 'auto': traces and full reports are uploaded only when the repository is private (artifacts of a public one are readable by any GitHub user).
-    artifacts: { includeTraces: 'auto' },
+    // Screenshots cannot be scanned for secrets or personal data: 'auto' publishes them only for private repositories (true/false force it).
+    artifacts: { includeTraces: 'auto', screenshots: 'auto' },
     ...overrides,
   };
 }

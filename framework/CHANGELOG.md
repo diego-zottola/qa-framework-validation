@@ -38,3 +38,35 @@ First versioned release of the shared core (everything under `framework/`).
 - Healer: tests failing on the same locator share one verification and one hunk in `heal.patch`; the patch now applies with `git apply`
   (also for the first/last line and files without a final newline) and is published next to the healing report.
 - No manual step.
+
+## 1.1.4
+
+- Removed templates nothing wired up: DB client, email helper, k6 load-test harness, FilterableTable and the memory seed files. They were never
+  copied by `init`; add them back as `init` options if a project needs them.
+- No manual step.
+
+## 1.2.0
+
+Review of the healer, publication and workflow permissions.
+
+- Healer: look-alike names that mean another action are rejected ("Archivar" vs "Desarchivar", "Eliminar" vs "Eliminar para
+  siempre", opposite verbs, scope words such as "todos"); a candidate whose name another locator already targets is rejected;
+  proposals keep the original failure, the word-level differences and `reviewRequired`. A passing re-run is still not a fix.
+- Healer patches are tied to the revision they were made for: `proposals.json` records the git revision and a hash of each
+  target file, `heal.patch` starts with the revision, and `npm run qa -- heal check` reports stale suggestions (exit 1).
+- Healer re-runs: exactly one test (file, line and title), its own output folder (the original failure evidence is not
+  overwritten), no retries, one worker, five-minute limit with a graceful stop so test teardown still removes its data.
+- Publication: only text, JSON and CSV attachments are published; screenshots only when `artifacts.screenshots` allows it
+  (`auto` = private repositories); URL-encoded, JSON-escaped and base64 copies of secrets are redacted; a leak scan after
+  sanitizing stops the publication when a secret is still present (fail closed).
+- The daily and manual cleanup squashes the `qa-reports` history so expired reports do not stay readable in old commits.
+- Visual workflow: the job that runs tests only reads; a second job, with no project code, writes the review branch.
+- Product deploy trigger: the token needs only **Actions: Read and write** with `gh workflow run`; `repository_dispatch` needs
+  Contents: write (the previous text said Actions: write, which GitHub does not accept for that event).
+- No manual step: `npm run qa -- upgrade` regenerates the workflows. Public projects stop publishing screenshots (set `artifacts.screenshots` to `true` to keep them).
+
+## 1.2.1
+
+- Publish reports: when GitHub Pages is not enabled (private repository on a free plan, or not set up yet) the deploy job is skipped with a notice
+  instead of failing every run; reports still reach the `qa-reports` branch.
+- No manual step.

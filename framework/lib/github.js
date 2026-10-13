@@ -39,9 +39,9 @@ export function pagesUrl(repo) {
 
 /** What gets published, in words, for the visibility the repository has. */
 export function visibilityNotice(visibility, retentionDays) {
-  const published = `Published on Pages (kept ${retentionDays} days): Allure reports with screenshots, the test case catalog, diagnosis. Never published: traces, videos, page snapshots, credentials.`;
+  const published = `Published on Pages (kept ${retentionDays} days): Allure reports (text only; screenshots only if the project allows it), the test case catalog, diagnosis, selector suggestions. Never published: traces, videos, page snapshots, credentials.`;
   if (visibility === 'public') {
-    return `The repository is PUBLIC, so the Pages site is public and so are the artifacts of its workflow runs. ${published} Artifacts with traces and full reports are therefore not uploaded (set artifacts.includeTraces in .qa-framework.json to change this). Screenshots can still show application data: use test accounts with fake data.`;
+    return `The repository is PUBLIC, so the Pages site is public and so are the artifacts of its workflow runs. ${published} Artifacts with traces and full reports are therefore not uploaded (set artifacts.includeTraces in .qa-framework.json to change this). Screenshots are not published either (artifacts.screenshots, 'auto' only publishes them for private repositories). Use test accounts with fake data anyway.`;
   }
   return `The repository is ${visibility}. GitHub Pages sites are public on most plans even for private repositories (except GitHub Enterprise Cloud with private Pages). ${published} Full reports and traces are uploaded as private artifacts only.`;
 }

@@ -1,14 +1,21 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import { spawn, spawnSync } from 'node:child_process';
 import { diagnoseMessage, clean } from '../diagnosis.js';
 import { parseFailure, parseExpression } from './locator.js';
-import { findInSource, applyReplacement, unifiedDiff } from './source.js';
+import { findInSource, findNameElsewhere, applyReplacement, unifiedDiff } from './source.js';
+
+const sha256 = (text) => crypto.createHash('sha256').update(text).digest('hex');
+const gitHead = (root) => {
+  const r = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' });
+  return r.status === 0 ? r.stdout.trim() : null;
+};
 import { llmPick } from './llm-tier.js';
 
 export const HEAL_DIR = '.qa-out/heal';
 
-export const NOTICE = 'Suggestions only. Nothing in the repository was modified. A passing re-run means the new locator found one element and the test then passed once; it is not proof the test is right. Review every diff. Assertions and expected values are never changed.';
+export const NOTICE = 'Suggestions only. Nothing in the repository was modified. A passing re-run means the new locator found one element and the test then passed once; it is not proof that this is the same element or the same action as before. A person must confirm that every candidate is the intended element before applying a diff. Assertions and expected values are never changed. A patch fits only the revision it was generated for: run `npm run qa -- heal check` before applying it.';
 
 function* failedTests(suites) {
   for (const suite of suites ?? []) {
@@ -52,17 +59,24 @@ function locate({ entry, parsed, suggestion, root }) {
   const located = findInSource({ root, parsed });
   if (located.status !== 'found') return { ...entry, status: located.status, reason: located.reason, candidate: suggestion.candidate, replacement: suggestion.replacement, locations: located.locations, proposedBy: suggestion.proposedBy };
   const before = fs.readFileSync(path.join(root, located.file), 'utf8');
+  const elsewhere = suggestion.candidate ? findNameElsewhere({ root, name: suggestion.candidate.name, except: located }) : [];
+  if (elsewhere.length) {
+    return { ...entry, status: 'rejected', reason: `the candidate name "${suggestion.candidate.name}" is already used by other locators (${elsewhere.slice(0, 3).join(', ')}): it is probably a different element, not the renamed one`, candidate: suggestion.candidate, proposedBy: suggestion.proposedBy };
+  }
   const after = applyReplacement(before, located, suggestion.replacement);
   return {
     ...entry,
     status: 'suggested',
+    reviewRequired: true,
+    differences: suggestion.differences,
+    rejectedLookalikes: suggestion.rejectedLookalikes,
     proposedBy: suggestion.proposedBy ?? 'rules',
     candidate: suggestion.candidate,
     alternatives: suggestion.alternatives,
     live: suggestion.live,
     llmReason: suggestion.llmReason,
     replacement: suggestion.replacement,
-    source: { file: located.file, line: located.line },
+    source: { file: located.file, line: located.line, sha256: sha256(before) },
     diff: unifiedDiff(located.file, before, after),
     _patch: { located, replacement: suggestion.replacement },
   };
@@ -81,7 +95,7 @@ export function buildHealReport({ report, root = process.cwd() }) {
     const last = [...(test.results ?? [])].reverse().find((r) => r.error);
     const message = last?.error?.message ?? '';
     const diag = diagnoseMessage(message, { annotations: test.annotations });
-    const entry = { title: spec.title, file: path.relative(root, path.resolve(testDir, spec.file)).split(path.sep).join('/'), project: test.projectName, line: spec.line, diagnosis: { category: diag.category, confidence: diag.confidence }, original: parseFailure(message).expression ?? null };
+    const entry = { title: spec.title, file: path.relative(root, path.resolve(testDir, spec.file)).split(path.sep).join('/'), project: test.projectName, line: spec.line, failure: clean(message).split('\n').find(Boolean)?.slice(0, 300) ?? '', diagnosis: { category: diag.category, confidence: diag.confidence }, original: parseFailure(message).expression ?? null };
     const failure = parseFailure(message);
     if (test.annotations?.some((a) => a.type === 'defect')) {
       proposals.push({ ...entry, status: 'not-applicable', reason: 'known defect: not a selector problem' });
@@ -107,7 +121,7 @@ export function buildHealReport({ report, root = process.cwd() }) {
     const parsed = parseExpression(failure.expression);
     if (captured.status !== 'suggested') {
       const retry = ['none', 'ambiguous'].includes(captured.status) && !/state, visibility or timing/.test(captured.reason ?? '');
-      proposals.push({ ...entry, status: captured.status, reason: captured.reason, alternatives: captured.alternatives, ...(retry && { _context: { parsed, action: failure.action, snapshots: attachedEvidence(test) } }) });
+      proposals.push({ ...entry, status: captured.status, reason: captured.reason, alternatives: captured.alternatives, rejectedLookalikes: captured.rejectedLookalikes, ...(retry && { _context: { parsed, action: failure.action, snapshots: attachedEvidence(test) } }) });
       continue;
     }
     if (captured.live && (captured.live.count !== 1 || !captured.live.visible || captured.live.enabled === false)) {
@@ -116,7 +130,7 @@ export function buildHealReport({ report, root = process.cwd() }) {
     }
     proposals.push(locate({ entry, parsed, suggestion: captured, root }));
   }
-  return { generatedAt: new Date().toISOString(), notice: NOTICE, proposals };
+  return { generatedAt: new Date().toISOString(), revision: gitHead(root), notice: NOTICE, proposals };
 }
 
 /**
@@ -160,19 +174,35 @@ export async function verifyProposal({ proposal, root = process.cwd(), run = def
   }
 }
 
-async function defaultRun({ root, proposal }) {
+export const VERIFY_TIMEOUT_MS = 300_000;
+
+/**
+ * One re-run of exactly the failed test. It must not disturb the evidence of the original run (own output folder,
+ * own JSON file, no Allure/HTML reporters), no retries (no repeated actions), and a hard time limit: SIGTERM lets
+ * Playwright run the test's teardown, so the data it created is removed even when the limit is hit.
+ */
+async function defaultRun({ root, proposal, timeoutMs = VERIFY_TIMEOUT_MS }) {
   const grep = proposal.title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const out = path.join(root, HEAL_DIR, 'verify.json');
   fs.mkdirSync(path.dirname(out), { recursive: true });
   fs.rmSync(out, { force: true });
-  const args = ['playwright', 'test', proposal.file, '-g', grep, `--project=${proposal.project}`, '--retries=0', '--reporter=json'];
+  const args = ['playwright', 'test', `${proposal.file}:${proposal.line}`, '-g', grep, `--project=${proposal.project}`, '--retries=0', '--workers=1', '--reporter=json', `--output=${path.join(HEAL_DIR, 'test-results')}`];
+  let timedOut = false;
   const { status, output } = await new Promise((resolve) => {
     const child = spawn('npx', args, { cwd: root, env: { ...process.env, PLAYWRIGHT_JSON_OUTPUT_NAME: out } });
+    const timer = setTimeout(() => {
+      timedOut = true;
+      child.kill('SIGTERM');
+    }, timeoutMs);
     let text = '';
     child.stdout.on('data', (d) => (text += d));
     child.stderr.on('data', (d) => (text += d));
-    child.on('close', (code) => resolve({ status: code, output: text }));
+    child.on('close', (code) => {
+      clearTimeout(timer);
+      resolve({ status: code, output: text });
+    });
   });
+  if (timedOut) return { inconclusive: true, detail: `the re-run was stopped after ${Math.round(timeoutMs / 1000)}s; Playwright ran the test's teardown, check for leftover data` };
   let ran = 0;
   try {
     const stats = JSON.parse(fs.readFileSync(out, 'utf8')).stats ?? {};
@@ -181,6 +211,7 @@ async function defaultRun({ root, proposal }) {
     // no JSON written: Playwright failed before running anything
   }
   if (!ran) return { inconclusive: true, detail: `no test ran: ${clean(output).split('\n').find(Boolean)?.slice(0, 200) ?? ''}` };
+  if (ran !== 1) return { inconclusive: true, detail: `${ran} tests matched "${proposal.title}" at ${proposal.file}:${proposal.line}; a verification must run exactly one` };
   return { passed: status === 0, detail: status === 0 ? 'passed once with the new locator' : clean(output).slice(0, 300) };
 }
 
@@ -204,7 +235,11 @@ export function renderHealMarkdown(report) {
   const lines = ['## Selector healing (suggestion mode)', '', report.notice, ''];
   if (!report.proposals.length) return lines.concat('No failed tests.', '').join('\n');
   for (const p of report.proposals) {
-    lines.push(`### ${p.title}`, '', `- Status: **${p.status}**${p.verification ? ` · re-run with the change: **${p.verification.status}**` : ''}`, `- Diagnosis: ${p.diagnosis.category} (${p.diagnosis.confidence})`);
+    lines.push(`### ${p.title}`, '', `- Status: **${p.status}**${p.reviewRequired ? ' (not a confirmed fix: review required)' : ''}${p.verification ? ` · re-run with the change: **${p.verification.status}**` : ''}`, `- Diagnosis: ${p.diagnosis.category} (${p.diagnosis.confidence})`);
+    if (p.failure) lines.push(`- Original failure (kept): ${p.failure}`);
+    if (p.differences) lines.push(`- Name change: removed [${p.differences.removed.join(', ')}] · added [${p.differences.added.join(', ')}]: confirm it is the same action`);
+    if (p.rejectedLookalikes?.length) lines.push(`- Rejected look-alikes: ${p.rejectedLookalikes.map((r) => `"${r.name}" (${r.reason})`).join('; ')}`);
+    if (p.verification?.detail) lines.push(`- Re-run detail: ${p.verification.detail}`);
     if (p.original) lines.push(`- Failing locator: \`${p.original}\``);
     if (p.reason) lines.push(`- Why: ${p.reason}`);
     if (p.candidate) lines.push(`- Candidate: ${p.candidate.role} "${p.candidate.name}"${p.candidate.score === null || p.candidate.score === undefined ? '' : ` (similarity ${p.candidate.score})`}${p.proposedBy === 'llm' ? ` — picked by an LLM from the page's elements${p.llmReason ? `: ${p.llmReason}` : ''}` : ''}`);
@@ -225,7 +260,24 @@ export function writeHealReport(report, root = process.cwd()) {
   fs.writeFileSync(path.join(dir, 'proposals.json'), JSON.stringify(clean_, null, 2));
   fs.writeFileSync(path.join(dir, 'heal-report.md'), renderHealMarkdown(clean_));
   // Several failing tests can share one locator: the patch carries each change once.
-  const patch = [...new Set(clean_.proposals.filter((p) => p.status === 'suggested' && p.diff && p.verification?.status !== 'failed').map((p) => p.diff))].join('\n');
-  fs.writeFileSync(path.join(dir, 'heal.patch'), patch);
+  const diffs = [...new Set(clean_.proposals.filter((p) => p.status === 'suggested' && p.diff && p.verification?.status !== 'failed').map((p) => p.diff))];
+  // Text before the first diff is ignored by `git apply`; it records which revision the patch fits.
+  const preamble = diffs.length ? `# qa heal patch: suggestions to review, not confirmed fixes\n# generated for revision ${clean_.revision ?? 'unknown'}\n# check it with: npm run qa -- heal check\n` : '';
+  fs.writeFileSync(path.join(dir, 'heal.patch'), diffs.length ? `${preamble}${diffs.join('\n')}` : '');
   return clean_;
+}
+
+/**
+ * Tells whether the suggestions in a healing report still fit the code in `root`. A patch is only valid for the
+ * revision it was made for: when a target file changed since, it is reported as stale and must be regenerated.
+ */
+export function checkProposals({ proposals, revision, root = process.cwd() }) {
+  const head = gitHead(root);
+  const items = proposals.filter((p) => p.status === 'suggested' && p.source).map((p) => {
+    const file = path.join(root, p.source.file);
+    if (!fs.existsSync(file)) return { title: p.title, file: p.source.file, state: 'stale', reason: 'the file no longer exists' };
+    if (sha256(fs.readFileSync(file, 'utf8')) !== p.source.sha256) return { title: p.title, file: p.source.file, state: 'stale', reason: 'the file changed since the suggestion was generated' };
+    return { title: p.title, file: p.source.file, state: 'current' };
+  });
+  return { revision: revision ?? null, head, sameRevision: Boolean(revision && head && revision === head), items, stale: items.filter((i) => i.state === 'stale').length };
 }

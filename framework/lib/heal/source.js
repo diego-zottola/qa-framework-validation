@@ -54,6 +54,25 @@ export function findInSource({ root, parsed, dirs = ['pages', 'tests', 'fixtures
   return { status: 'found', file: hit.file, line: hit.line, index: hit.index, match: hit.match };
 }
 
+/**
+ * Where else the candidate's name is already used as a locator. A name the project already targets on purpose
+ * belongs to another element with its own purpose, so pointing a second, different locator at it is suspicious.
+ */
+export function findNameElsewhere({ root, name, except, dirs = ['pages', 'tests', 'fixtures', 'utils'] }) {
+  const pattern = new RegExp(`(?:name:\\s*|getBy\\w+\\(\\s*)${text(name)}`, 'g');
+  const places = [];
+  for (const file of sourceFiles(root, dirs)) {
+    const content = fs.readFileSync(file, 'utf8');
+    const rel = path.relative(root, file);
+    for (const m of content.matchAll(pattern)) {
+      const line = content.slice(0, m.index).split('\n').length;
+      if (rel === except.file && line === except.line) continue;
+      places.push(`${rel}:${line}`);
+    }
+  }
+  return places;
+}
+
 /** The file content with the matched locator replaced. Touches nothing else on the line or in the file. */
 export function applyReplacement(content, hit, replacement) {
   if (content.slice(hit.index, hit.index + hit.match.length) !== hit.match) throw new Error('the file changed since the locator was found');

@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
-import { parseFailure, parseExpression, parseAriaSnapshot, similarity, proposeReplacement } from '../lib/heal/locator.js';
+import { parseFailure, parseExpression, parseAriaSnapshot, similarity, proposeReplacement, actionConflict } from '../lib/heal/locator.js';
 import { findInSource, applyReplacement, unifiedDiff, sourcePattern } from '../lib/heal/source.js';
-import { buildHealReport, verifyProposal, verifyAll, writeHealReport, renderHealMarkdown } from '../lib/heal/report.js';
+import { buildHealReport, verifyProposal, verifyAll, writeHealReport, renderHealMarkdown, checkProposals } from '../lib/heal/report.js';
 import { startFixtureApp } from './fixture-app.js';
 import { tempDir } from './helpers.js';
 
@@ -82,7 +82,7 @@ test('nothing is proposed when the element is gone, when the name still exists, 
   assert.equal(present.status, 'none');
   assert.match(present.reason, /state, visibility or timing/);
 
-  const tie = proposeReplacement({ parsed: parsedOf("getByRole('button', { name: 'Guardar' })"), snapshot: '- button "Guardar todo"\n- button "Guardar borrador"', action: 'click' });
+  const tie = proposeReplacement({ parsed: parsedOf("getByRole('button', { name: 'Guardar' })"), snapshot: '- button "Guardar copia"\n- button "Guardar borrador"', action: 'click' });
   assert.equal(tie.status, 'ambiguous');
   assert.equal(tie.alternatives.length, 2);
 });
@@ -148,7 +148,8 @@ test('the report suggests only for selector-like action failures and says why fo
   });
   const by = Object.fromEntries(report.proposals.map((p) => [p.title.split(' ')[0], p]));
   assert.equal(by.TC1.status, 'suggested');
-  assert.deepEqual(by.TC1.source, { file: 'pages/S.js', line: 1 });
+  assert.deepEqual({ ...by.TC1.source, sha256: undefined }, { file: 'pages/S.js', line: 1, sha256: undefined });
+  assert.match(by.TC1.source.sha256, /^[0-9a-f]{64}$/);
   assert.match(by.TC2.reason, /assertions are never healed/);
   assert.match(by.TC3.reason, /known defect/);
   assert.equal(by.TC4.status, 'no-evidence');
@@ -232,6 +233,8 @@ test('TC3 wrong heading', async ({ page }) => { await page.goto('/'); await expe
     assert.equal(verification.status, 'passed', JSON.stringify(verification));
     assert.equal(fs.readFileSync(path.join(root, 'pages/Login.js'), 'utf8'), sourceBefore, 'source restored');
     assert.equal(spawnSync('git', ['status', '--porcelain', '--', 'pages', 'tests'], { cwd: root, encoding: 'utf8' }).stdout, '', 'working tree untouched');
+    assert.match(fs.readFileSync(path.join(root, 'test-results/.last-run.json'), 'utf8'), /"status": "failed"/, 'the original failure evidence was not overwritten by the re-run');
+    assert.ok(fs.existsSync(path.join(root, '.qa-out/heal/test-results')), 'the re-run wrote to its own output folder');
   } finally {
     app.close();
   }
@@ -352,7 +355,7 @@ test('the report only asks the LLM about undecided failures, and labels what it 
     const [first, second] = report.proposals;
     assert.equal(first.status, 'suggested');
     assert.equal(first.proposedBy, 'llm');
-    assert.deepEqual(first.source, { file: 'pages/S.js', line: 1 });
+    assert.deepEqual({ ...first.source, sha256: undefined }, { file: 'pages/S.js', line: 1, sha256: undefined });
     assert.equal(second.status, 'none');
     const md = renderHealMarkdown(writeHealReport(report, root));
     assert.match(md, /picked by an LLM from the page's elements: same download action/);
@@ -397,4 +400,106 @@ test('the generated diff applies with git apply wherever the line sits in the fi
     spawnSync('git', ['apply', 'change.patch'], { cwd: root });
     assert.equal(fs.readFileSync(path.join(root, 'pages/S.js'), 'utf8'), after, label);
   }
+});
+
+// ---- review hardening: look-alikes with another meaning, names used elsewhere, stale patches -----------------------
+
+test('look-alike names that mean another action are rejected, not suggested', () => {
+  const cases = [
+    ['Archivar página', '- button "Desarchivar página"\n- button "Nueva página"'],
+    ['Eliminar', '- button "Eliminar para siempre"\n- button "Cancelar"'],
+    ['Open menu', '- button "Close menu"'],
+    ['Aceptar', '- button "Rechazar"'],
+    ['Guardar', '- button "Guardar todo"'],
+  ];
+  for (const [name, snapshot] of cases) {
+    const p = proposeReplacement({ parsed: parsedOf(`getByRole('button', { name: '${name}' })`), snapshot, action: 'click' });
+    assert.equal(p.status, 'none', `${name}: ${JSON.stringify(p)}`);
+    assert.ok(p.rejectedLookalikes?.length || p.reason, name);
+  }
+  const p = proposeReplacement({ parsed: parsedOf("getByRole('button', { name: 'Archivar página' })"), snapshot: '- button "Desarchivar página"', action: 'click' });
+  assert.match(p.reason, /different action/);
+  assert.match(p.rejectedLookalikes[0].reason, /negates|opposite/);
+  assert.equal(actionConflict('Guardar', 'Guardar cambios'), null, 'a longer name for the same action is fine');
+  assert.equal(actionConflict('Sign in now', 'Sign in'), null);
+  // The same pair is accepted next to a clean candidate: only the look-alike is dropped.
+  const mixed = proposeReplacement({ parsed: parsedOf("getByRole('button', { name: 'Archivar página' })"), snapshot: '- button "Desarchivar página"\n- button "Archivar"', action: 'click' });
+  assert.equal(mixed.status, 'suggested');
+  assert.equal(mixed.candidate.name, 'Archivar');
+  assert.equal(mixed.rejectedLookalikes[0].name, 'Desarchivar página');
+  assert.deepEqual(mixed.differences, { removed: ['pagina'], added: [] });
+});
+
+test('a candidate whose name another locator already targets is rejected as a different element', () => {
+  const root = project({
+    'pages/S.js': "this.save = page.getByRole('button', { name: 'Guardar' });\nthis.saveCopy = page.getByRole('button', { name: 'Guardar cambios' });\n",
+    'tests/a.spec.js': '',
+  });
+  const action = "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: 'Guardar' })\n";
+  const report = buildHealReport({ root, report: { config: { rootDir: path.join(root, 'tests') }, suites: [{ specs: [failedSpec('TC1 renamed', action, attach(suggested))] }] } });
+  assert.equal(report.proposals[0].status, 'rejected');
+  assert.match(report.proposals[0].reason, /already used by other locators \(pages\/S\.js:2\)/);
+  assert.equal(writeHealReport(report, root).proposals[0].diff, undefined);
+  assert.equal(fs.readFileSync(path.join(root, '.qa-out/heal/heal.patch'), 'utf8'), '', 'no patch for a rejected candidate');
+});
+
+test('an ambiguous candidate and a failed assertion produce no diff and no patch', () => {
+  const root = project({ 'pages/S.js': "this.save = page.getByRole('button', { name: 'Guardar' });\n", 'tests/a.spec.js': '' });
+  const action = "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: 'Guardar' })\n";
+  const report = buildHealReport({ root, report: { config: { rootDir: path.join(root, 'tests') }, suites: [{ specs: [
+    failedSpec('TC1 ambiguous', action, attach({ status: 'ambiguous', reason: 'several elements look equally close', alternatives: [] })),
+    failedSpec('TC2 assertion', ASSERTION, attach(suggested)),
+  ] }] } });
+  assert.deepEqual(report.proposals.map((p) => p.status), ['ambiguous', 'not-applicable']);
+  writeHealReport(report, root);
+  assert.equal(fs.readFileSync(path.join(root, '.qa-out/heal/heal.patch'), 'utf8'), '');
+  assert.equal(fs.readFileSync(path.join(root, 'pages/S.js'), 'utf8'), "this.save = page.getByRole('button', { name: 'Guardar' });\n");
+});
+
+test('a patch is tied to the revision it was made for: edits after that are detected as stale', () => {
+  const root = project({ 'pages/S.js': "this.save = page.getByRole('button', { name: 'Guardar' });\n", 'tests/a.spec.js': '' });
+  spawnSync('git', ['init', '-q'], { cwd: root });
+  spawnSync('git', ['add', '-A'], { cwd: root });
+  const commit = (m) => spawnSync('git', ['-c', 'user.email=a@b.c', '-c', 'user.name=t', 'commit', '-qam', m], { cwd: root });
+  commit('base');
+  const action = "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: 'Guardar' })\n";
+  const report = buildHealReport({ root, report: { config: { rootDir: path.join(root, 'tests') }, suites: [{ specs: [failedSpec('TC1 renamed', action, attach(suggested))] }] } });
+  const written = writeHealReport(report, root);
+  assert.match(written.revision, /^[0-9a-f]{40}$/);
+  const patch = fs.readFileSync(path.join(root, '.qa-out/heal/heal.patch'), 'utf8');
+  assert.match(patch, /^# generated for revision [0-9a-f]{40}$/m);
+  assert.equal(spawnSync('git', ['apply', '--check', '.qa-out/heal/heal.patch'], { cwd: root }).status, 0, 'git ignores the preamble');
+
+  const fresh = checkProposals({ proposals: written.proposals, revision: written.revision, root });
+  assert.equal(fresh.stale, 0);
+  assert.equal(fresh.sameRevision, true);
+
+  // The code moves on: the same line is edited by someone else, so the patch no longer fits.
+  fs.writeFileSync(path.join(root, 'pages/S.js'), "// moved\nthis.save = page.getByRole('button', { name: 'Guardar' });\n");
+  commit('someone edits the page object');
+  const stale = checkProposals({ proposals: written.proposals, revision: written.revision, root });
+  assert.equal(stale.stale, 1);
+  assert.equal(stale.sameRevision, false);
+  assert.match(stale.items[0].reason, /changed since/);
+  fs.rmSync(path.join(root, 'pages/S.js'));
+  assert.match(checkProposals({ proposals: written.proposals, revision: written.revision, root }).items[0].reason, /no longer exists/);
+});
+
+test('qa heal check exits 1 for a stale patch and 0 for a current one', () => {
+  const root = project({ 'pages/S.js': "this.save = page.getByRole('button', { name: 'Guardar' });\n", 'tests/a.spec.js': '' });
+  spawnSync('git', ['init', '-q'], { cwd: root });
+  spawnSync('git', ['add', '-A'], { cwd: root });
+  spawnSync('git', ['-c', 'user.email=a@b.c', '-c', 'user.name=t', 'commit', '-qm', 'base'], { cwd: root });
+  const action = "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: 'Guardar' })\n";
+  writeHealReport(buildHealReport({ root, report: { config: { rootDir: path.join(root, 'tests') }, suites: [{ specs: [failedSpec('TC1 renamed', action, attach(suggested))] }] } }), root);
+  const qa = path.join(repo, 'framework/bin/qa.mjs');
+  const run = () => spawnSync('node', [qa, 'heal', 'check'], { cwd: root, encoding: 'utf8' });
+  const ok = run();
+  assert.equal(ok.status, 0, ok.stdout + ok.stderr);
+  assert.match(ok.stdout, /applies cleanly/);
+  fs.writeFileSync(path.join(root, 'pages/S.js'), "this.save = page.getByRole('button', { name: 'Guardar' });\n// edited\n");
+  const bad = run();
+  assert.equal(bad.status, 1);
+  assert.match(bad.stdout, /STALE/);
+  assert.match(bad.stdout, /do not apply/);
 });

@@ -5,7 +5,8 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { collectSecrets, redactText, redactDeep } from '../lib/site/redact.js';
 import { sanitizeAllureResults } from '../lib/site/sanitize.js';
-import { buildMeta } from '../lib/site/prepare.js';
+import { buildMeta, preparePublicRun } from '../lib/site/prepare.js';
+import { findLeaks } from '../lib/site/leaks.js';
 import { allureCaseLinks } from '../lib/site/allure-links.js';
 import { addRuns, buildSite, listRuns, pruneRuns } from '../lib/site/build.js';
 import { publishToBranch, squashBranch } from '../lib/site/publish.js';
@@ -44,14 +45,68 @@ test('sanitizing drops traces, videos, snapshots and unreferenced files, and rew
   const secrets = collectSecrets({ TEST_USER_PASSWORD: 'p4ss-w0rd!' });
   const { dropped } = sanitizeAllureResults({ src: path.join(root, 'in'), dest: path.join(root, 'out'), secrets });
   const files = fs.readdirSync(path.join(root, 'out')).sort();
-  assert.deepEqual(files, ['a-container.json', 'a-result.json', 'environment.properties', 'h2-attachment.json', 's1-attachment.png', 's2-attachment.png']);
-  assert.deepEqual(dropped.sort(), ['error-context', 'heal-evidence', 'trace', 'trace', 'video', 'video']);
+  assert.deepEqual(files, ['a-container.json', 'a-result.json', 'environment.properties', 'h2-attachment.json']);
+  assert.deepEqual(dropped.sort(), ['error-context', 'heal-evidence', 'screenshot', 'shot', 'trace', 'trace', 'video', 'video']);
   const result = JSON.parse(fs.readFileSync(path.join(root, 'out/a-result.json'), 'utf8'));
-  assert.deepEqual(result.attachments.map((a) => a.name), ['screenshot', 'heal-proposal']);
-  assert.deepEqual(result.steps[0].attachments.map((a) => a.name), ['shot']);
+  assert.deepEqual(result.attachments.map((a) => a.name), ['heal-proposal']);
+  assert.deepEqual(result.steps[0].attachments, []);
   assert.deepEqual(JSON.parse(fs.readFileSync(path.join(root, 'out/a-container.json'), 'utf8')).befores[0].attachments, []);
-  const everything = files.filter((f) => !f.endsWith('.png')).map((f) => fs.readFileSync(path.join(root, 'out', f), 'utf8')).join('\n');
+  const everything = files.map((f) => fs.readFileSync(path.join(root, 'out', f), 'utf8')).join('\n');
   assert.ok(!everything.includes('p4ss-w0rd!') && !everything.includes(JWT));
+});
+
+test('screenshots are published only when the project opts in; other file types never are', () => {
+  const root = tempDir();
+  allureResults(path.join(root, 'in'));
+  const att = (name, source, type) => ({ name, source, type });
+  const extra = JSON.parse(fs.readFileSync(path.join(root, 'in/a-result.json'), 'utf8'));
+  extra.attachments.push(att('page', 'p1-attachment.html', 'text/html'), att('logo', 'l1-attachment.svg', 'image/svg+xml'), att('doc', 'd1-attachment.pdf', 'application/pdf'), att('blob', 'b1-attachment.bin', 'application/octet-stream'), att('log', 'g1-attachment.txt', 'text/plain'));
+  fs.writeFileSync(path.join(root, 'in/a-result.json'), JSON.stringify(extra));
+  for (const f of ['p1-attachment.html', 'l1-attachment.svg', 'd1-attachment.pdf', 'b1-attachment.bin']) fs.writeFileSync(path.join(root, 'in', f), '<script>alert(1)</script>');
+  fs.writeFileSync(path.join(root, 'in/g1-attachment.txt'), 'password p4ss-w0rd!');
+  const secrets = collectSecrets({ TEST_USER_PASSWORD: 'p4ss-w0rd!' });
+  sanitizeAllureResults({ src: path.join(root, 'in'), dest: path.join(root, 'out'), secrets, screenshots: true });
+  const kept = fs.readdirSync(path.join(root, 'out')).sort();
+  assert.ok(kept.includes('s1-attachment.png') && kept.includes('s2-attachment.png'), 'opted-in screenshots stay');
+  for (const gone of ['p1-attachment.html', 'l1-attachment.svg', 'd1-attachment.pdf', 'b1-attachment.bin', 't1-attachment.zip', 'v1-attachment.webm']) assert.ok(!kept.includes(gone), `${gone} is withheld`);
+  assert.equal(fs.readFileSync(path.join(root, 'out/g1-attachment.txt'), 'utf8'), 'password [redacted]', 'text attachments are redacted');
+});
+
+test('encoded copies of a secret are redacted too (URL-encoded, JSON-escaped, base64)', () => {
+  const password = 'p4ss w0rd"/&';
+  const secrets = collectSecrets({ TEST_USER_PASSWORD: password });
+  const text = [encodeURIComponent(password), JSON.stringify(password), Buffer.from(password).toString('base64'), password].join(' | ');
+  const out = redactText(text, secrets);
+  assert.equal(out.replace(/\[redacted\]/g, '').replace(/[ |"]/g, ''), '', out);
+});
+
+test('the leak scan finds secrets and token-shaped text left in a folder, without reporting the value', () => {
+  const dir = tempDir();
+  fs.mkdirSync(path.join(dir, 'data'));
+  fs.writeFileSync(path.join(dir, 'data/a.json'), '{"x":"clean"}');
+  fs.writeFileSync(path.join(dir, 'data/b.json'), '{"x":"has p4ss-w0rd! inside"}');
+  fs.writeFileSync(path.join(dir, 'c.html'), `<p>${JWT}</p>`);
+  fs.writeFileSync(path.join(dir, 'd.txt'), 'Authorization: Bearer abcdefghijklmnop1234');
+  fs.writeFileSync(path.join(dir, 'e.txt'), 'Authorization: Bearer [redacted] and apikey=[redacted]');
+  const found = findLeaks(dir, collectSecrets({ TEST_USER_PASSWORD: 'p4ss-w0rd!' }));
+  assert.deepEqual(found.map((f) => `${f.file}: ${f.what}`).sort(), ['c.html: a JWT', 'd.txt: a bearer token', 'data/b.json: a secret value'].sort());
+  assert.ok(!JSON.stringify(found).includes('p4ss-w0rd!'));
+});
+
+test('publish-prepare refuses to produce a report when a secret survives sanitizing', () => {
+  const root = tempDir();
+  allureResults(path.join(root, 'allure-results'));
+  const env = { TEST_USER_PASSWORD: 'p4ss-w0rd!' };
+  const generate = ({ report }) => {
+    fs.mkdirSync(report, { recursive: true });
+    fs.writeFileSync(path.join(report, 'index.html'), '<html></html>');
+    fs.writeFileSync(path.join(report, 'summary.json'), '{"leak":"p4ss-w0rd!"}');
+  };
+  assert.throws(() => preparePublicRun({ suite: 'smoke', root, env, generate }), /Nothing was published: 1 possible leak/);
+  assert.ok(!fs.existsSync(path.join(root, 'qa-publish')), 'the folder to upload is removed');
+  const ok = preparePublicRun({ suite: 'smoke', root, env, generate: ({ report }) => { fs.mkdirSync(report, { recursive: true }); fs.writeFileSync(path.join(report, 'index.html'), '<html></html>'); } });
+  assert.equal(ok.meta.suite, 'smoke');
+  assert.ok(fs.existsSync(path.join(root, 'qa-publish/meta.json')));
 });
 
 test('run metadata comes from Playwright stats and the CI environment', () => {

@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import http from 'node:http';
 import { spawn, spawnSync } from 'node:child_process';
-import { chromium } from '@playwright/test';
+import { chromium, expect } from '@playwright/test';
 import { buildSite } from '../lib/site/build.js';
 import { fileURLToPath } from 'node:url';
 import { startFixtureApp } from './fixture-app.js';
@@ -85,8 +85,9 @@ test('a project created from the template: init, doctor, the smoke suite, the re
     const prepared = path.join(root, 'qa-publish');
     const meta = JSON.parse(fs.readFileSync(path.join(prepared, 'meta.json'), 'utf8'));
     assert.deepEqual(meta.counts, { passed: 4, failed: 0, flaky: 0, skipped: 0 });
-    const attachments = fs.readdirSync(path.join(prepared, 'allure-report/data/attachments'));
-    assert.ok(attachments.length && attachments.every((f) => !/\.(zip|webm)$/.test(f)), `no traces or videos in the published report: ${attachments.join(', ')}`);
+    const published = fs.readdirSync(prepared, { recursive: true });
+    const media = published.filter((f) => /\.(zip|webm|mp4|png|jpe?g)$/.test(f));
+    assert.deepEqual(media, [], 'no traces, videos or screenshots in the published report unless the project opts in');
 
     // Assemble the site like the Pages workflow does, then follow the TCM link into the real Allure report.
     const siteDir = path.join(root, 'site');
@@ -106,7 +107,7 @@ test('a project created from the template: init, doctor, the smoke suite, the re
       await page.locator('.pane__title', { hasText: 'TC0001 - login screen asks for credentials' }).waitFor({ timeout: 20_000 });
       assert.match(page.url(), /#suites\/\w+\/\w+$/, 'the link opens the test result, not just the report');
       await page.goto(`http://127.0.0.1:${server.address().port}/`);
-      assert.ok(await page.getByRole('link', { name: /smoke/ }).first().isVisible(), 'the portal lists the latest run');
+      await expect(page.getByRole('link', { name: /smoke/ }).first(), 'the portal lists the latest run').toBeVisible();
     } finally {
       await browser.close();
       server.close();

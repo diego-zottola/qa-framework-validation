@@ -36,6 +36,7 @@ jobs:
         if: always() && hashFiles('allure-results/*') != ''
         run: npm run qa -- publish-prepare --suite {{SUITE}}
         env:
+          QA_PUBLISH_SCREENSHOTS: {{SCREENSHOTS}}
 {{SECRET_ENV}}
 {{NOTIFY}}      - name: Upload the publishable report
         if: always() && hashFiles('qa-publish/meta.json') != ''

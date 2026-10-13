@@ -4,7 +4,7 @@ import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { chromium } from '@playwright/test';
+import { chromium, expect } from '@playwright/test';
 import { parseRoute, routeFor, filterCases } from '../tcm/model.js';
 
 const tcmDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../tcm');
@@ -45,24 +45,25 @@ test('the TCM page browses areas, searches, opens a case and never executes cata
     page.on('dialog', (d) => { dialogs++; d.dismiss(); });
     await page.goto(`http://127.0.0.1:${server.address().port}/`);
     await page.getByRole('link', { name: 'All cases (3)' }).waitFor();
-    assert.equal(await page.locator('tbody tr').count(), 3);
+    await expect(page.locator('tbody tr')).toHaveCount(3);
 
     await page.getByRole('link', { name: 'Pages (2)' }).click();
-    assert.equal(await page.locator('tbody tr').count(), 2);
+    await expect(page.locator('tbody tr')).toHaveCount(2);
 
     await page.getByRole('searchbox', { name: 'Search cases' }).fill('click new');
-    assert.equal(await page.locator('tbody tr').count(), 1);
+    await expect(page.locator('tbody tr')).toHaveCount(1);
 
     await page.getByRole('link', { name: 'TC0001' }).click();
     await page.getByRole('heading', { name: /TC0001 · Create a page/ }).waitFor();
-    assert.ok(await page.getByText('Click New page').isVisible());
-    assert.ok(await page.getByText('tests/p.spec.js:4').isVisible());
-    assert.equal(await page.getByText(/Latest .* report/).count(), 0, 'no results are shown in the TCM');
+    await expect(page.getByText('Click New page')).toBeVisible();
+    await expect(page.getByText('tests/p.spec.js:4')).toBeVisible();
+    await expect(page.getByText(/Latest .* report/)).toHaveCount(0);
 
     await page.goto(`http://127.0.0.1:${server.address().port}/#/case/TC0003`);
     await page.getByRole('heading', { name: /TC0003/ }).waitFor();
     assert.equal(dialogs, 0);
-    assert.equal(await page.locator('img[src="x"]').count(), 0, 'catalog text is rendered as text, not HTML');
+    await expect(page.getByText('<img src=x onerror=alert(1)>').first()).toBeVisible();
+    await expect(page.locator('img[src="x"]')).toHaveCount(0);
   } finally {
     await browser.close();
     server.close();

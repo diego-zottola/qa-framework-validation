@@ -207,7 +207,15 @@ const commands = {
       },
     });
     console.log(`site-publish: ${result.status} (attempt ${result.attempts}); added ${summary.added.length}, expired ${summary.removed.length}, runs kept ${summary.runs}`);
-    if (args.includes('--squash')) console.log(`site-publish: history ${JSON.stringify(squashBranch({}))}`);
+    // The daily cleanup also rewrites the branch history to one commit: otherwise expired reports would stay
+    // readable in old commits (and the repository would keep growing). A lost race is retried on the next run.
+    if (args.includes('--squash')) {
+      try {
+        console.log(`site-publish: history ${JSON.stringify(squashBranch({ keepCommits: 1 }))}`);
+      } catch (error) {
+        console.log(`site-publish: history not squashed this time (${String(error.stderr ?? error.message).split('\n')[0]}); it is retried by the next daily cleanup`);
+      }
+    }
   },
   // qa diagnose [--results playwright-report/results.json]: classify failures from Playwright's own results.
   diagnose: async (args) => {
@@ -229,7 +237,26 @@ const commands = {
   // qa heal [--results ...] [--verify]: suggest selector fixes for failed actions. Never edits the repository.
   heal: async (args) => {
     const fs = await import('node:fs');
-    const { buildHealReport, verifyAll, writeHealReport, renderHealMarkdown } = await import('../lib/heal/report.js');
+    const { buildHealReport, verifyAll, writeHealReport, renderHealMarkdown, checkProposals } = await import('../lib/heal/report.js');
+    // qa heal check [--proposals .qa-out/heal/proposals.json] [--patch .qa-out/heal/heal.patch]: does a downloaded patch still fit this code?
+    if (args[0] === 'check') {
+      const proposalsFile = arg(args, '--proposals', '.qa-out/heal/proposals.json');
+      const patchFile = arg(args, '--patch', '.qa-out/heal/heal.patch');
+      if (!fs.existsSync(proposalsFile)) {
+        console.log(`heal check: ${proposalsFile} not found (download heal-proposals.json and heal.patch from the report)`);
+        process.exit(1);
+      }
+      const saved = JSON.parse(fs.readFileSync(proposalsFile, 'utf8'));
+      const result = checkProposals({ proposals: saved.proposals, revision: saved.revision });
+      const { spawnSync } = await import('node:child_process');
+      const apply = fs.existsSync(patchFile) && fs.statSync(patchFile).size ? spawnSync('git', ['apply', '--check', patchFile], { encoding: 'utf8' }) : null;
+      console.log(`heal check: generated for ${result.revision ?? 'unknown revision'}, this code is ${result.head ?? 'not a git checkout'}${result.sameRevision ? ' (same revision)' : ''}`);
+      for (const item of result.items) console.log(`  ${item.state === 'current' ? 'ok   ' : 'STALE'} ${item.file}: ${item.title}${item.reason ? ` (${item.reason})` : ''}`);
+      if (apply) console.log(`  git apply --check: ${apply.status === 0 ? 'applies cleanly' : `does not apply (${apply.stderr.split('\n')[0]})`}`);
+      const ok = result.stale === 0 && (!apply || apply.status === 0) && result.items.length > 0;
+      console.log(ok ? 'heal check: safe to review and apply (still needs a person to confirm each candidate)' : 'heal check: do not apply; regenerate the suggestions from a new run');
+      process.exit(ok ? 0 : 1);
+    }
     const file = arg(args, '--results', 'playwright-report/results.json');
     if (!fs.existsSync(file)) {
       console.log(`heal: ${file} not found`);

@@ -24,8 +24,6 @@ jobs:
     name: Run Visual Tests
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -49,16 +47,46 @@ jobs:
           path: test-results/
           retention-days: {{RETENTION}}
           if-no-files-found: ignore
-      - name: Push the updated baselines
+      - name: Pack the updated baselines
         if: inputs.update_baselines
         run: |
-          git config user.name qa-framework
-          git config user.email qa-framework@users.noreply.github.com
-          git switch -c qa/update-visual-baselines
-          git add -A -- '*__screenshots__*'
-          git diff --cached --quiet && echo "No baseline changed" && exit 0
-          git commit -m "Update visual baselines"
-          git push --force origin HEAD:qa/update-visual-baselines
+          git add -A -- '*__screenshots__*' || true  # no match: no visual test wrote a baseline
+          if git diff --cached --quiet; then echo "No baseline changed"; else git diff --cached --name-only -z | tar --null -T - -czf baselines.tgz; fi
+      - name: Keep the updated baselines
+        if: inputs.update_baselines && hashFiles('baselines.tgz') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-baselines
+          path: baselines.tgz
+          retention-days: 1
       - name: Keep the job red when tests failed
         if: steps.run.outcome == 'failure' && !inputs.update_baselines
         run: exit 1
+
+  push-baselines:
+    name: Push the updated baselines
+    # Only this job can write to the repository, and it runs nothing from the tests: it unpacks images and commits them.
+    needs: visual
+    if: inputs.update_baselines && !cancelled()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        id: download
+        continue-on-error: true
+        with:
+          name: visual-baselines
+      - name: Commit the baselines to a review branch
+        if: steps.download.outcome == 'success'
+        run: |
+          tar -xzf baselines.tgz && rm baselines.tgz
+          git config user.name qa-framework
+          git config user.email qa-framework@users.noreply.github.com
+          git switch -c qa/update-visual-baselines
+          git add -A -- '*__screenshots__*' || true
+          git diff --cached --quiet && echo "No baseline changed" && exit 0
+          git commit -m "Update visual baselines"
+          git push --force origin HEAD:qa/update-visual-baselines

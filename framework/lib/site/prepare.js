@@ -4,6 +4,7 @@ import { spawnSync } from 'node:child_process';
 import { sanitizeAllureResults } from './sanitize.js';
 import { collectSecrets, redactText } from './redact.js';
 import { allureCaseLinks } from './allure-links.js';
+import { findLeaks } from './leaks.js';
 
 export const PUBLISH_DIR = 'qa-publish';
 
@@ -32,7 +33,7 @@ export function buildMeta({ suite, results, env = process.env, now = new Date() 
  * Builds the publishable folder for one run: sanitized Allure report, diagnosis, healing suggestions, case links
  * and metadata. Nothing here contains traces, videos, page snapshots or secrets.
  */
-export function preparePublicRun({ suite, root = process.cwd(), env = process.env, generate = defaultGenerate }) {
+export function preparePublicRun({ suite, root = process.cwd(), env = process.env, generate = defaultGenerate, screenshots = env.QA_PUBLISH_SCREENSHOTS === 'true' }) {
   const out = path.join(root, PUBLISH_DIR);
   fs.rmSync(out, { recursive: true, force: true });
   fs.mkdirSync(out, { recursive: true });
@@ -40,7 +41,7 @@ export function preparePublicRun({ suite, root = process.cwd(), env = process.en
   const resultsFile = path.join(root, 'playwright-report/results.json');
   const results = fs.existsSync(resultsFile) ? JSON.parse(fs.readFileSync(resultsFile, 'utf8')) : null;
   const sanitized = path.join(out, 'allure-results');
-  const { dropped } = sanitizeAllureResults({ src: path.join(root, 'allure-results'), dest: sanitized, secrets });
+  const { dropped } = sanitizeAllureResults({ src: path.join(root, 'allure-results'), dest: sanitized, secrets, screenshots });
   const reportDir = path.join(out, 'allure-report');
   generate({ results: sanitized, report: reportDir });
   fs.rmSync(sanitized, { recursive: true, force: true });
@@ -52,6 +53,12 @@ export function preparePublicRun({ suite, root = process.cwd(), env = process.en
   }
   const meta = buildMeta({ suite, results, env });
   fs.writeFileSync(path.join(out, 'meta.json'), JSON.stringify(meta, null, 2));
+  // Fail closed: a secret that got past the redaction means nothing from this run is published.
+  const leaks = findLeaks(out, secrets);
+  if (leaks.length) {
+    fs.rmSync(out, { recursive: true, force: true });
+    throw new Error(`Nothing was published: ${leaks.length} possible leak(s) found after sanitizing (${[...new Set(leaks.map((l) => `${l.what} in ${l.file}`))].slice(0, 5).join('; ')}). Find where the test or app prints it.`);
+  }
   return { meta, dropped, caseLinks };
 }
 

@@ -41,7 +41,7 @@ jobs:
       - name: Build the test case catalog
         run: npm run qa -- catalog
       - name: Publish to the reports branch
-        run: npm run qa -- site-publish --incoming qa-incoming ${{ github.event_name == 'schedule' && '--squash' || '' }}
+        run: npm run qa -- site-publish --incoming qa-incoming ${{ github.event_name != 'workflow_run' && '--squash' || '' }}
 
   deploy:
     name: Deploy to GitHub Pages
@@ -61,12 +61,29 @@ jobs:
       group: pages-deploy
       cancel-in-progress: false
     steps:
+      # Without Pages (private repository on a plan that lacks it, or not enabled yet) the reports still reach the
+      # `qa-reports` branch; the deploy is skipped with a notice instead of turning every run red.
+      - name: Check that GitHub Pages is enabled
+        id: pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh api "repos/${{ github.repository }}/pages" --silent 2>/dev/null; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=GitHub Pages is not enabled::Reports were stored on the qa-reports branch but not deployed. Enable Settings > Pages > Source: GitHub Actions (private repositories need a paid plan)."
+          fi
       - uses: actions/checkout@v4
+        if: steps.pages.outputs.enabled == 'true'
         with:
           ref: qa-reports
       - uses: actions/configure-pages@v5
+        if: steps.pages.outputs.enabled == 'true'
       - uses: actions/upload-pages-artifact@v3
+        if: steps.pages.outputs.enabled == 'true'
         with:
           path: .
       - id: deployment
+        if: steps.pages.outputs.enabled == 'true'
         uses: actions/deploy-pages@v4

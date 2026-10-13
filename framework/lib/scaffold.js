@@ -175,7 +175,9 @@ ${secrets}
   const sweep = config.options.api ? withSecrets('Remove QA data left by interrupted runs', 'npm run qa -- sweep --older-than 2h') : '';
   const traces = config.artifacts?.includeTraces ?? 'auto';
   const rawIf = traces === true ? 'true' : traces === false ? 'false' : 'github.event.repository.private == true';
-  const base = { RETENTION: String(config.retentionDays), SECRET_ENV: secrets, SWEEP: sweep, NOTIFY: notify, RAW_IF: rawIf, GREP_EXPR: grepExpr };
+  const shots = config.artifacts?.screenshots ?? 'auto';
+  const screenshots = shots === true ? "'true'" : shots === false ? "'false'" : '${{ github.event.repository.private }}';
+  const base = { SCREENSHOTS: screenshots, RETENTION: String(config.retentionDays), SECRET_ENV: secrets, SWEEP: sweep, NOTIFY: notify, RAW_IF: rawIf, GREP_EXPR: grepExpr };
   const suite = (file, values) => [file, renderWorkflow(template, { ...base, ...values })];
   const files = Object.fromEntries([
     suite('.github/workflows/smoke.yml', { NAME: 'Smoke Tests', SUITE: 'smoke', PROJECT: 'chromium', DIR: 'tests/smoke-tests', TIMEOUT: '30', CONCURRENCY: 'smoke-${{ github.ref }}', AFTER_RUN: diagnose + heal, SELECT: select.replace('DIR', 'tests/smoke-tests'), TRIGGERS: `${triggers.push ? '  push:\n    branches: [main, master]\n    paths-ignore: [\'docs/**\', \'**.md\']\n' : ''}  schedule:\n    - cron: '${minute} ${hour} * * *'  # UTC\n${dispatch('smoke')}${productEvent}` }),
