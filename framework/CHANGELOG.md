@@ -32,3 +32,9 @@ First versioned release of the shared core (everything under `framework/`).
 - Healer: names are matched by shared words, containment or a close edit distance (0.7+). A long shared word no longer makes unrelated
   buttons look alike (found on a real project: a wrong suggestion, caught only by the verification re-run).
 - No manual step.
+
+## 1.1.3
+
+- Healer: tests failing on the same locator share one verification and one hunk in `heal.patch`; the patch now applies with `git apply`
+  (also for the first/last line and files without a final newline) and is published next to the healing report.
+- No manual step.

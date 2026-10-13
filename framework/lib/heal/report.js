@@ -184,6 +184,22 @@ async function defaultRun({ root, proposal }) {
   return { passed: status === 0, detail: status === 0 ? 'passed once with the new locator' : clean(output).slice(0, 300) };
 }
 
+/** Verifies each distinct change once; failing tests that share a locator share the result. */
+export async function verifyAll({ proposals, root = process.cwd(), limit = 10, run }) {
+  const done = new Map();
+  for (const proposal of proposals.filter((p) => p.status === 'suggested')) {
+    const key = `${proposal.source.file}:${proposal.source.line}:${proposal.replacement}`;
+    if (!done.has(key)) {
+      if (done.size >= limit) {
+        proposal.verification = { status: 'skipped', reason: `only ${limit} changes are verified per run` };
+        continue;
+      }
+      done.set(key, await verifyProposal({ proposal, root, ...(run && { run }) }));
+    }
+    proposal.verification = done.get(key);
+  }
+}
+
 export function renderHealMarkdown(report) {
   const lines = ['## Selector healing (suggestion mode)', '', report.notice, ''];
   if (!report.proposals.length) return lines.concat('No failed tests.', '').join('\n');
@@ -208,7 +224,8 @@ export function writeHealReport(report, root = process.cwd()) {
   const clean_ = { ...report, proposals: report.proposals.map(({ _patch, _context, ...rest }) => rest) };
   fs.writeFileSync(path.join(dir, 'proposals.json'), JSON.stringify(clean_, null, 2));
   fs.writeFileSync(path.join(dir, 'heal-report.md'), renderHealMarkdown(clean_));
-  const patch = clean_.proposals.filter((p) => p.status === 'suggested' && p.diff && p.verification?.status !== 'failed').map((p) => p.diff).join('\n');
+  // Several failing tests can share one locator: the patch carries each change once.
+  const patch = [...new Set(clean_.proposals.filter((p) => p.status === 'suggested' && p.diff && p.verification?.status !== 'failed').map((p) => p.diff))].join('\n');
   fs.writeFileSync(path.join(dir, 'heal.patch'), patch);
   return clean_;
 }

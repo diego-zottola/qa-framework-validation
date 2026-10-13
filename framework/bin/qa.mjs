@@ -229,7 +229,7 @@ const commands = {
   // qa heal [--results ...] [--verify]: suggest selector fixes for failed actions. Never edits the repository.
   heal: async (args) => {
     const fs = await import('node:fs');
-    const { buildHealReport, verifyProposal, writeHealReport, renderHealMarkdown } = await import('../lib/heal/report.js');
+    const { buildHealReport, verifyAll, writeHealReport, renderHealMarkdown } = await import('../lib/heal/report.js');
     const file = arg(args, '--results', 'playwright-report/results.json');
     if (!fs.existsSync(file)) {
       console.log(`heal: ${file} not found`);
@@ -246,9 +246,7 @@ const commands = {
       console.log(`heal: tier 3 enabled (${llm.provider}, ${llm.model}): names of page elements were sent to the provider for undecided failures`);
     }
     if (args.includes('--verify')) {
-      for (const proposal of report.proposals.filter((p) => p.status === 'suggested').slice(0, 10)) {
-        proposal.verification = await verifyProposal({ proposal });
-      }
+      await verifyAll({ proposals: report.proposals });
     }
     const written = writeHealReport(report);
     await appendSummary(renderHealMarkdown(written));

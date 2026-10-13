@@ -46,7 +46,7 @@ export function preparePublicRun({ suite, root = process.cwd(), env = process.en
   fs.rmSync(sanitized, { recursive: true, force: true });
   const caseLinks = allureCaseLinks(reportDir);
   fs.writeFileSync(path.join(out, 'case-links.json'), JSON.stringify(caseLinks));
-  for (const [from, to] of [['.qa-out/diagnosis.json', 'diagnosis.json'], ['.qa-out/diagnosis.md', 'diagnosis.md'], ['.qa-out/heal/proposals.json', 'heal-proposals.json'], ['.qa-out/heal/heal-report.md', 'heal-report.md']]) {
+  for (const [from, to] of [['.qa-out/diagnosis.json', 'diagnosis.json'], ['.qa-out/diagnosis.md', 'diagnosis.md'], ['.qa-out/heal/proposals.json', 'heal-proposals.json'], ['.qa-out/heal/heal-report.md', 'heal-report.md'], ['.qa-out/heal/heal.patch', 'heal.patch']]) {
     const file = path.join(root, from);
     if (fs.existsSync(file)) fs.writeFileSync(path.join(out, to), redactText(fs.readFileSync(file, 'utf8'), secrets));
   }

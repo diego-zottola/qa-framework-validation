@@ -5,7 +5,7 @@ import path from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
 import { parseFailure, parseExpression, parseAriaSnapshot, similarity, proposeReplacement } from '../lib/heal/locator.js';
 import { findInSource, applyReplacement, unifiedDiff, sourcePattern } from '../lib/heal/source.js';
-import { buildHealReport, verifyProposal, writeHealReport, renderHealMarkdown } from '../lib/heal/report.js';
+import { buildHealReport, verifyProposal, verifyAll, writeHealReport, renderHealMarkdown } from '../lib/heal/report.js';
 import { startFixtureApp } from './fixture-app.js';
 import { tempDir } from './helpers.js';
 
@@ -358,5 +358,43 @@ test('the report only asks the LLM about undecided failures, and labels what it 
     assert.match(md, /picked by an LLM from the page's elements: same download action/);
   } finally {
     server.close();
+  }
+});
+
+test('tests that fail on the same locator share one verification and one patch hunk', async () => {
+  const root = project({ 'pages/S.js': "this.save = page.getByRole('button', { name: 'Guardar' });\n", 'tests/a.spec.js': '' });
+  spawnSync('git', ['init', '-q'], { cwd: root });
+  spawnSync('git', ['add', '-A'], { cwd: root });
+  spawnSync('git', ['-c', 'user.email=a@b.c', '-c', 'user.name=t', 'commit', '-qm', 'x'], { cwd: root });
+  const action = "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: 'Guardar' })\n";
+  const report = buildHealReport({ root, report: { config: { rootDir: path.join(root, 'tests') }, suites: [{ specs: [failedSpec('TC1 first', action, attach(suggested)), failedSpec('TC2 second', action, attach(suggested))] }] } });
+  let runs = 0;
+  await verifyAll({ proposals: report.proposals, root, run: () => { runs++; return { passed: true, detail: 'ok' }; } });
+  assert.equal(runs, 1);
+  assert.deepEqual(report.proposals.map((p) => p.verification.status), ['passed', 'passed']);
+  writeHealReport(report, root);
+  const patch = fs.readFileSync(path.join(root, '.qa-out/heal/heal.patch'), 'utf8');
+  assert.equal(patch.split('--- a/pages/S.js').length - 1, 1);
+  assert.equal(spawnSync('git', ['apply', '--check', '.qa-out/heal/heal.patch'], { cwd: root }).status, 0, 'the patch applies');
+});
+
+test('the generated diff applies with git apply wherever the line sits in the file', () => {
+  const cases = {
+    'single line': "this.a = page.getByRole('button', { name: 'Guardar' });\n",
+    'first line': "this.a = page.getByRole('button', { name: 'Guardar' });\nline 2\nline 3\nline 4\nline 5\n",
+    'last line': "line 1\nline 2\nline 3\nline 4\nthis.a = page.getByRole('button', { name: 'Guardar' });\n",
+    'middle': "1\n2\n3\n4\nthis.a = page.getByRole('button', { name: 'Guardar' });\n6\n7\n8\n9\n",
+    'no final newline': "x\ny\nthis.a = page.getByRole('button', { name: 'Guardar' });",
+  };
+  for (const [label, content] of Object.entries(cases)) {
+    const root = project({ 'pages/S.js': content });
+    spawnSync('git', ['init', '-q'], { cwd: root });
+    const hit = findInSource({ root, parsed: parseExpression("getByRole('button', { name: 'Guardar' })") });
+    const after = applyReplacement(content, hit, "getByRole('button', { name: 'Guardar cambios', exact: true })");
+    fs.writeFileSync(path.join(root, 'change.patch'), unifiedDiff('pages/S.js', content, after));
+    const check = spawnSync('git', ['apply', '--check', 'change.patch'], { cwd: root, encoding: 'utf8' });
+    assert.equal(check.status, 0, `${label}: ${check.stderr}`);
+    spawnSync('git', ['apply', 'change.patch'], { cwd: root });
+    assert.equal(fs.readFileSync(path.join(root, 'pages/S.js'), 'utf8'), after, label);
   }
 });

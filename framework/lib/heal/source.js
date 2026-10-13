@@ -60,18 +60,26 @@ export function applyReplacement(content, hit, replacement) {
   return content.slice(0, hit.index) + replacement + content.slice(hit.index + hit.match.length);
 }
 
-/** Unified diff of a one-line change, enough for `git apply`. */
+/** Unified diff of a one-line change, accepted by `git apply` (checked in tests, including first and last lines). */
 export function unifiedDiff(file, before, after) {
-  const a = before.split('\n');
-  const b = after.split('\n');
+  const lines = (text) => {
+    const parts = text.split('\n');
+    if (parts.at(-1) === '') parts.pop();
+    return parts;
+  };
+  const a = lines(before);
+  const b = lines(after);
   const i = a.findIndex((line, n) => line !== b[n]);
   if (i < 0) return '';
   const from = Math.max(0, i - 3);
   const to = Math.min(a.length, i + 4);
   const body = [];
+  const noEol = '\\ No newline at end of file';
+  const lastLineHasNoEol = !before.endsWith('\n');
   for (let n = from; n < to; n++) {
-    if (n === i) body.push(`-${a[n]}`, `+${b[n]}`);
-    else body.push(` ${a[n]}`);
+    const atEnd = lastLineHasNoEol && n === a.length - 1;
+    if (n === i) body.push(`-${a[n]}`, ...(atEnd ? [noEol] : []), `+${b[n]}`, ...(atEnd ? [noEol] : []));
+    else body.push(` ${a[n]}`, ...(atEnd ? [noEol] : []));
   }
   const count = to - from;
   return [`--- a/${file}`, `+++ b/${file}`, `@@ -${from + 1},${count} +${from + 1},${count} @@`, ...body, ''].join('\n');

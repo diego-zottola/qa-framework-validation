@@ -81,6 +81,7 @@ function incomingRun(root, name, { suite = 'smoke', runId = '100', attempt = '1'
   fs.writeFileSync(path.join(dir, 'secrets.txt'), 'not in the allow list');
   fs.writeFileSync(path.join(dir, 'diagnosis.md'), '## Failure diagnosis\n<script>alert(1)</script>\n');
   fs.writeFileSync(path.join(dir, 'heal-report.md'), '## Healing\n');
+  fs.writeFileSync(path.join(dir, 'heal.patch'), '--- a/x\n+++ b/x\n');
   return dir;
 }
 const catalog = { generatedAt: '2026-02-10T00:00:00Z', stats: { total: 1 }, areas: [], cases: [] };
@@ -103,6 +104,7 @@ test('the site keeps each run in its own folder, one per suite and run, and copi
   const portal = fs.readFileSync(path.join(site, 'index.html'), 'utf8');
   assert.match(portal, /diagnosis\.html/);
   assert.match(portal, /heal-report\.html/);
+  assert.match(portal, /heal\.patch/);
   assert.match(portal, /My &lt;App&gt;/);
   assert.match(portal, /href="tcm\/"/);
   assert.match(portal, /kept 15 days/);

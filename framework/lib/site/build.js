@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 const tcmSource = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../tcm');
 const SUITE = /^[a-z0-9][a-z0-9-]{0,40}$/;
 const NUMBER = /^\d{1,20}$/;
-const RUN_FILES = ['meta.json', 'diagnosis.json', 'diagnosis.md', 'heal-report.md', 'heal-proposals.json', 'case-links.json'];
+const RUN_FILES = ['meta.json', 'diagnosis.json', 'diagnosis.md', 'heal-report.md', 'heal-proposals.json', 'heal.patch', 'case-links.json'];
 
 export const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 /** Markdown reports are shown as escaped preformatted text: readable in a browser, with nothing executable in them. */
@@ -85,7 +85,7 @@ const badge = (status) => `<span class="s ${esc(status)}">${esc(status)}</span>`
 function portalHtml({ runs, app, retentionDays, now }) {
   const latest = latestBySuite(runs);
   const cards = Object.entries(latest).map(([suite, r]) => `<a class="card" href="latest/${esc(suite)}/">${badge(r.status)} <b>${esc(suite)}</b><br><small>${esc(r.finishedAt.slice(0, 16).replace('T', ' '))} UTC · ${r.counts.passed} passed · ${r.counts.failed} failed · ${r.counts.flaky} flaky</small></a>`).join('') || '<p>No runs published yet.</p>';
-  const rows = runs.map((r) => `<tr><td>${esc(r.finishedAt.slice(0, 16).replace('T', ' '))}</td><td>${esc(r.suite)}</td><td>${badge(r.status)}</td><td>${r.counts.passed}/${r.counts.failed}/${r.counts.flaky}</td><td>${esc(r.event)} ${esc(r.sha)}</td><td><a href="${esc(r.dir)}/allure/index.html">Allure</a>${fs.existsSync(path.join(r._siteDir ?? '', r.dir, 'diagnosis.html')) ? ` · <a href="${esc(r.dir)}/diagnosis.html">diagnosis</a>` : ''}${fs.existsSync(path.join(r._siteDir ?? '', r.dir, 'heal-report.html')) ? ` · <a href="${esc(r.dir)}/heal-report.html">healing</a>` : ''}${r.runUrl ? ` · <a href="${esc(r.runUrl)}">workflow run</a>` : ''}</td></tr>`).join('');
+  const rows = runs.map((r) => `<tr><td>${esc(r.finishedAt.slice(0, 16).replace('T', ' '))}</td><td>${esc(r.suite)}</td><td>${badge(r.status)}</td><td>${r.counts.passed}/${r.counts.failed}/${r.counts.flaky}</td><td>${esc(r.event)} ${esc(r.sha)}</td><td><a href="${esc(r.dir)}/allure/index.html">Allure</a>${fs.existsSync(path.join(r._siteDir ?? '', r.dir, 'diagnosis.html')) ? ` · <a href="${esc(r.dir)}/diagnosis.html">diagnosis</a>` : ''}${fs.existsSync(path.join(r._siteDir ?? '', r.dir, 'heal-report.html')) ? ` · <a href="${esc(r.dir)}/heal-report.html">healing</a>` : ''}${fs.existsSync(path.join(r._siteDir ?? '', r.dir, 'heal.patch')) && fs.statSync(path.join(r._siteDir, r.dir, 'heal.patch')).size ? ` · <a href="${esc(r.dir)}/heal.patch">patch</a>` : ''}${r.runUrl ? ` · <a href="${esc(r.runUrl)}">workflow run</a>` : ''}</td></tr>`).join('');
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(app)} · QA reports</title>
 <style>:root{--bg:#fff;--fg:#1f2328;--muted:#656d76;--line:#d8dee4}@media(prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--muted:#8b949e;--line:#30363d}}
 body{margin:0;padding:16px;font:14px/1.5 system-ui,sans-serif;background:var(--bg);color:var(--fg);max-width:1000px;margin-inline:auto}a{color:#0969da}
