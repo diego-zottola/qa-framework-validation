@@ -1,0 +1,69 @@
+area: Roles
+feature: Guest permissions
+cases:
+  - id: TC0024
+    title: The guest sidebar has no new page, trash or groups entries
+    priority: high
+    type: ui
+    automation: automated
+    preconditions:
+      - Signed in as the QA guest (guest profile)
+    steps:
+      - Open the owner's workspace
+    expected:
+      - The switcher shows the role "Invitado"
+      - There is no "Nueva página", Papelera or Grupos
+      - Miembros and Preferencias are available
+    spec: tests/regression/roles.spec.js
+  - id: TC0025
+    title: Only the owner can see the trash
+    priority: high
+    type: ui
+    automation: automated
+    preconditions:
+      - Signed in as the QA guest (guest profile)
+    steps:
+      - Open /w/<workspace>/trash
+    expected:
+      - The message "Solo el propietario del espacio puede ver la papelera" is shown
+      - No archived pages are listed
+    spec: tests/regression/roles.spec.js
+  - id: TC0026
+    title: The guest members page hides the directory and offers to leave the workspace
+    priority: medium
+    type: ui
+    automation: automated
+    preconditions:
+      - Signed in as the QA guest (guest profile)
+    steps:
+      - Open /w/<workspace>/settings/members
+    expected:
+      - The guest explanation is shown
+      - '"Salir del espacio de trabajo" is available (not clicked)'
+      - The add member form is absent
+    spec: tests/regression/roles.spec.js
+  - id: TC0027
+    title: The guest has no access to the groups directory
+    priority: medium
+    type: ui
+    automation: automated
+    preconditions:
+      - Signed in as the QA guest (guest profile)
+    steps:
+      - Open /w/<workspace>/settings/groups
+    expected:
+      - '"Como invitado no tenés acceso al directorio de grupos." is shown'
+      - The create group form is absent
+    spec: tests/regression/roles.spec.js
+  - id: TC0028
+    title: The guest profile lists the workspaces with the guest role
+    priority: low
+    type: ui
+    automation: automated
+    preconditions:
+      - Signed in as the QA guest (guest profile)
+    steps:
+      - Open /profile
+    expected:
+      - The owner's workspace is listed with the role "Invitado"
+    spec: tests/regression/roles.spec.js

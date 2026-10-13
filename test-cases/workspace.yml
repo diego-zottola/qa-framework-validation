@@ -1,0 +1,77 @@
+area: Workspace
+feature: Workspace home and pages
+cases:
+  - id: TC0005
+    title: The owner lands on the default workspace with the full sidebar
+    priority: high
+    type: ui
+    automation: automated
+    preconditions:
+      - Signed in as the QA owner (default profile)
+    steps:
+      - Open the application root URL
+      - Wait for the workspace to load
+    expected:
+      - The workspace switcher shows "Espacio de <username>" with the role "Propietario"
+      - The sidebar shows Papelera, Miembros, Grupos, Preferencias and Perfil
+      - '"Nueva página" is available'
+    spec: tests/smoke-tests/workspace.spec.js
+  - id: TC0006
+    title: Creating a page from the sidebar opens an untitled page in the editor
+    priority: high
+    type: ui
+    automation: automated
+    preconditions:
+      - Signed in as the QA owner (default profile)
+    steps:
+      - Open the workspace
+      - Click "Nueva página" in the sidebar
+    expected:
+      - The URL changes to /w/<workspace>/p/<page id>
+      - The title field is empty with the placeholder "Sin título"
+      - The save status reads "Guardado"
+    spec: tests/smoke-tests/workspace.spec.js
+  - id: TC0007
+    title: A title edit is saved and survives a reload
+    priority: high
+    type: ui
+    automation: automated
+    preconditions:
+      - Signed in as the QA owner (default profile)
+      - A page named qa-auto-<time> exists in the owner's default workspace (created through the API)
+    steps:
+      - Open the page
+      - Replace the title with a new text and wait for the save request
+      - Reload the page
+    expected:
+      - The title field shows the new text after the reload
+    spec: tests/smoke-tests/workspace.spec.js
+  - id: TC0008
+    title: A page opens from the sidebar tree
+    priority: high
+    type: ui
+    automation: automated
+    preconditions:
+      - Signed in as the QA owner (default profile)
+      - A page named qa-auto-<time> exists in the owner's default workspace (created through the API)
+    steps:
+      - Open the workspace
+      - Click the page link in the "Páginas" tree
+    expected:
+      - The URL ends with the page id
+      - The title field shows the page title
+    spec: tests/smoke-tests/workspace.spec.js
+  - id: TC0009
+    title: Search finds a page by its title
+    priority: high
+    type: ui
+    automation: automated
+    preconditions:
+      - Signed in as the QA owner (default profile)
+      - A page named qa-auto-<time> exists in the owner's default workspace (created through the API)
+    steps:
+      - Open the workspace
+      - Click "Buscar" and type the page title in "Buscar páginas"
+    expected:
+      - The results list contains a link to the page
+    spec: tests/smoke-tests/workspace.spec.js

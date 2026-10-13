@@ -1,19 +1,38 @@
-# AI-Driven Automation Framework (template)
+# Notion Knockoff Test Automation: Claude Context
 
-This repository is the template itself, not an application under test. Projects are created from it with "Use this
-template", then `npm run init` scaffolds and configures them. The generated project's own CLAUDE.md replaces this file.
+## Project purpose
 
-## Layout
+Automated UI and API regression for "Notion Knockoff" (a collaborative workspace app: pages, trash, sharing, members, groups).
+Built on the AI-driven automation framework: shared code lives in `framework/` (never edit it; it is replaced on upgrade), project code in
+`pages/`, `fixtures/`, `tests/`, `test-cases/`, `api/` and `docs/`. Read `docs/app-map.md`, `docs/business-rules.md` and
+`docs/technical-context.md` before acting, and append findings after each run.
 
-- `framework/`: the shared core (CLI, libraries, fixtures, TCM page, workflow and file templates, tests). Documented in `framework/README.md`.
-- `scripts/init.mjs`: the guided onboarding. Deterministic scaffold first (`framework/lib/scaffold.js`), then `claude -p`.
-- `.claude/skills/ai-driven-automation-framework/SKILL.md`: what Claude does after the scaffold (explore, write tests).
-- `.claude/commands/`: portable commands copied into projects. `docs/business-rules.md`: the rules of the flow.
+## Stack
 
-## Working on the template
+Playwright (JavaScript, ESM), Allure reporter, page objects extending `pages/BasePage.js` registered in `fixtures/base.fixture.js`.
+The app's backend is Supabase (PostgREST); API tests and data seeding use `api/api.config.js`.
 
-- `npm run lint && npm run typecheck && npm run test:framework` must pass. `framework/test/init.e2e.test.js` builds a project from this tree and runs it.
-- Every improvement belongs in the template and its `init`, not only in one project. A new capability needs: code in `framework/lib`, a test, scaffold/workflow wiring,
-  `doctor` awareness if it adds secrets or scripts, docs in `framework/README.md`, a `framework/CHANGELOG.md` entry and a `framework/VERSION` bump.
-- Do not add files that nothing calls. Healer stays in suggestion mode; assertions are never changed by tooling.
-- Never print or commit credentials. Code, comments, commit messages and project files are in English.
+## Conventions
+
+- Test titles start with a case ID: `TC0005 - action and expected result`; IDs are unique and sequential; every test has a definition in
+  `test-cases/<area>.yml` (`npm run catalog` must pass). Smoke in `tests/smoke-tests/`, regression in `tests/regression/`, API in `tests/api/`.
+- Locators by role, label or test id, in page objects; assertions live in specs. Another role: `test.use(useEnvironment('guest'))`.
+- Test data: created through `seed.create('page')` (names `qa-auto-...`, cleaned up even on failure). UI-created pages are registered with
+  `seed.items.push`. The body/title autosave is awaited through `editorPage.savedRequest()`, not through the "Guardado" status.
+- Known defects are annotated, never hidden by weaker assertions. Credentials only in `.env`; never print or commit them.
+
+## App: Notion Knockoff
+
+- URL: `BASE_URL` in `.env`.
+- Auth: username/password form; profiles `default` (workspace owner) and `guest` (guest of the owner's default workspace). Google login not automated.
+- Key pages: `/w/<id>` home, `/w/<id>/p/<page>` editor, `/w/<id>/trash`, `/w/<id>/settings/members`, `/w/<id>/settings/groups`, `/settings`, `/profile`.
+- Gotchas: UI is in Spanish; two nested `main` elements; the sidebar shows all pages so parallel tests must locate by unique name; the table grants no
+  direct DELETE/UPDATE of archive fields (use the RPCs `archive_page`, `delete_page_permanently`); `API_BASE_URL` and `SUPABASE_ANON_KEY` are needed in `.env`/CI.
+
+## Test inventory
+
+Last TC: TC0043 (43 tests total)
+- `tests/smoke-tests/auth.spec.js`: TC0001-TC0004 login. `tests/smoke-tests/workspace.spec.js`: TC0005-TC0009 workspace, create, title, open, search.
+- `tests/regression/pages.spec.js`: TC0010-TC0019 body, subpages, archive, trash, search. `sharing.spec.js`: TC0020-TC0023. `roles.spec.js`: TC0024-TC0028 (guest).
+- `tests/regression/settings.spec.js`: TC0029-TC0035 preferences, profile, members, groups, switcher.
+- `tests/api/pages.spec.js`: TC0036-TC0043 pages API, RPCs, guest permissions.

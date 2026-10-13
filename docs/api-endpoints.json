@@ -1,0 +1,93 @@
+{
+  "generatedAt": "2026-10-13T14:48:18.960Z",
+  "origins": [
+    "https://fahnncxypkdhqwpyjidr.supabase.co"
+  ],
+  "endpoints": [
+    {
+      "method": "GET",
+      "origin": "https://fahnncxypkdhqwpyjidr.supabase.co",
+      "path": "/rest/v1/groups",
+      "query": [
+        "order",
+        "select",
+        "workspace_id"
+      ],
+      "statuses": [
+        200
+      ],
+      "count": 1,
+      "authenticated": true
+    },
+    {
+      "method": "GET",
+      "origin": "https://fahnncxypkdhqwpyjidr.supabase.co",
+      "path": "/rest/v1/pages",
+      "query": [
+        "order",
+        "select",
+        "workspace_id"
+      ],
+      "statuses": [
+        200
+      ],
+      "count": 4,
+      "authenticated": true
+    },
+    {
+      "method": "GET",
+      "origin": "https://fahnncxypkdhqwpyjidr.supabase.co",
+      "path": "/rest/v1/pending_invitations",
+      "query": [
+        "order",
+        "page_id",
+        "select",
+        "workspace_id"
+      ],
+      "statuses": [
+        200
+      ],
+      "count": 1,
+      "authenticated": true
+    },
+    {
+      "method": "POST",
+      "origin": "https://fahnncxypkdhqwpyjidr.supabase.co",
+      "path": "/rest/v1/rpc/claim_domain_workspaces",
+      "query": [],
+      "statuses": [
+        200
+      ],
+      "count": 5,
+      "authenticated": true
+    },
+    {
+      "method": "POST",
+      "origin": "https://fahnncxypkdhqwpyjidr.supabase.co",
+      "path": "/rest/v1/rpc/get_page_permissions",
+      "query": [],
+      "statuses": [
+        200
+      ],
+      "count": 4,
+      "authenticated": true
+    },
+    {
+      "method": "GET",
+      "origin": "https://fahnncxypkdhqwpyjidr.supabase.co",
+      "path": "/rest/v1/workspace_members",
+      "query": [
+        "order",
+        "select",
+        "user_id",
+        "workspace_id"
+      ],
+      "statuses": [
+        200
+      ],
+      "count": 9,
+      "authenticated": true
+    }
+  ],
+  "documented": []
+}

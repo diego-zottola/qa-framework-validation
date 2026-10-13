@@ -1,0 +1,157 @@
+area: Workspace
+feature: Pages, trash and search
+cases:
+  - id: TC0010
+    title: Body text is saved and survives a reload
+    priority: high
+    type: ui
+    automation: automated
+    preconditions:
+      - Signed in as the QA owner (default profile)
+      - A page named qa-auto-<time> exists in the owner's default workspace (created through the API)
+    steps:
+      - Open the page
+      - Click the body and type a sentence, wait for the blocks save request
+      - Reload the page
+    expected:
+      - The body still contains the sentence
+    spec: tests/regression/pages.spec.js
+  - id: TC0011
+    title: A subpage is nested under its parent in the sidebar
+    priority: medium
+    type: ui
+    automation: automated
+    preconditions:
+      - Signed in as the QA owner (default profile)
+      - A page named qa-auto-<time> exists in the owner's default workspace (created through the API)
+    steps:
+      - Open the workspace
+      - Click "Agregar subpágina en <parent>"
+    expected:
+      - The editor opens the new page
+      - The sidebar shows an untitled child link inside the parent row, pointing at the new page
+    spec: tests/regression/pages.spec.js
+  - id: TC0012
+    title: Archiving a page asks for confirmation and moves it to the trash
+    priority: high
+    type: ui
+    automation: automated
+    preconditions:
+      - Signed in as the QA owner (default profile)
+      - A page named qa-auto-<time> exists in the owner's default workspace (created through the API)
+    steps:
+      - Open the page
+      - Click "Archivar"
+      - Confirm "Archivar" in the dialog "¿Archivar esta página?"
+      - Open Papelera
+    expected:
+      - The page link disappears from the sidebar
+      - The trash lists the page with "En la raíz"
+    spec: tests/regression/pages.spec.js
+  - id: TC0013
+    title: Cancelling the archive confirmation keeps the page
+    priority: medium
+    type: ui
+    automation: automated
+    preconditions:
+      - Signed in as the QA owner (default profile)
+      - A page named qa-auto-<time> exists in the owner's default workspace (created through the API)
+    steps:
+      - Open the page
+      - Click "Archivar"
+      - Click "Cancelar" in the dialog
+    expected:
+      - The dialog warns that subpages are archived too
+      - The dialog closes and the page stays in the sidebar
+    spec: tests/regression/pages.spec.js
+  - id: TC0014
+    title: An archived page can be restored from the trash
+    priority: high
+    type: ui
+    automation: automated
+    preconditions:
+      - Signed in as the QA owner (default profile)
+      - A page named qa-auto-<time> exists in the owner's default workspace (created through the API)
+      - The page is archived
+    steps:
+      - Open Papelera
+      - Click "Restaurar <title>"
+      - Open the workspace
+    expected:
+      - The page leaves the trash
+      - The page is back in the sidebar
+    spec: tests/regression/pages.spec.js
+  - id: TC0015
+    title: An archived page can be deleted permanently from the trash
+    priority: high
+    type: ui
+    automation: automated
+    preconditions:
+      - Signed in as the QA owner (default profile)
+      - A page named qa-auto-<time> exists in the owner's default workspace (created through the API)
+      - The page is archived
+    steps:
+      - Open Papelera
+      - Click "Eliminar definitivamente <title>"
+      - Confirm in the dialog "¿Eliminar definitivamente?"
+    expected:
+      - The page leaves the trash
+      - The pages table no longer returns the page
+    spec: tests/regression/pages.spec.js
+  - id: TC0016
+    title: The page actions menu offers move up, move down, move and archive
+    priority: low
+    type: ui
+    automation: automated
+    preconditions:
+      - Signed in as the QA owner (default profile)
+      - A page named qa-auto-<time> exists in the owner's default workspace (created through the API)
+    steps:
+      - Open the workspace
+      - Click "Acciones de <title>"
+    expected:
+      - The menu shows Subir, Bajar, "Mover a…" and Archivar
+    spec: tests/regression/pages.spec.js
+  - id: TC0017
+    title: Searching for text that matches nothing says so
+    priority: medium
+    type: ui
+    automation: automated
+    preconditions:
+      - Signed in as the QA owner (default profile)
+    steps:
+      - Open the workspace
+      - Click "Buscar" and type a text no page contains
+    expected:
+      - The dialog shows "Sin resultados"
+    spec: tests/regression/pages.spec.js
+  - id: TC0018
+    title: Search also finds a page by its body text
+    priority: medium
+    type: ui
+    automation: automated
+    preconditions:
+      - Signed in as the QA owner (default profile)
+      - A page named qa-auto-<time> exists in the owner's default workspace (created through the API)
+    steps:
+      - Open the page and type a unique word in the body, wait for the save
+      - Open the workspace
+      - Click "Buscar" and type the word
+    expected:
+      - The results list contains a link to the page
+    spec: tests/regression/pages.spec.js
+  - id: TC0019
+    title: An archived page is not returned by search
+    priority: medium
+    type: ui
+    automation: automated
+    preconditions:
+      - Signed in as the QA owner (default profile)
+      - A page named qa-auto-<time> exists in the owner's default workspace (created through the API)
+      - The page is archived
+    steps:
+      - Open the workspace
+      - Click "Buscar" and type the page title
+    expected:
+      - The dialog shows "Sin resultados"
+    spec: tests/regression/pages.spec.js

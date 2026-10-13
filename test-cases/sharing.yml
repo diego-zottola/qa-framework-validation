@@ -1,0 +1,64 @@
+area: Sharing
+feature: Share dialog and shared pages
+cases:
+  - id: TC0020
+    title: The share dialog lists the people who got access with their permission
+    priority: high
+    type: ui
+    automation: automated
+    preconditions:
+      - Signed in as the QA owner (default profile)
+      - A page named qa-auto-<time> exists in the owner's default workspace (created through the API)
+    steps:
+      - Open the page and click "Compartir"
+      - Check the access list and the Compartir button
+      - Type the guest email and click "Compartir"
+    expected:
+      - 'Before sharing: the button is disabled and the list says "Nadie todavía."'
+      - 'After sharing: one person is listed with the permission "Puede ver"'
+    spec: tests/regression/sharing.spec.js
+  - id: TC0021
+    title: The share dialog offers the three permissions for people and groups
+    priority: low
+    type: ui
+    automation: automated
+    preconditions:
+      - Signed in as the QA owner (default profile)
+      - A page named qa-auto-<time> exists in the owner's default workspace (created through the API)
+    steps:
+      - Open the page and click "Compartir"
+      - Read the options of both permission selectors
+    expected:
+      - Each selector offers "Puede ver", "Puede editar" and "Acceso total"
+    spec: tests/regression/sharing.spec.js
+  - id: TC0022
+    title: A page shared with "Puede ver" appears for the guest as read-only
+    priority: high
+    type: ui
+    automation: automated
+    preconditions:
+      - Signed in as the QA guest (guest profile)
+      - A page named qa-auto-<time> exists in the owner's default workspace (created through the API)
+      - The page is shared with the guest as VIEWER
+    steps:
+      - Open the owner's workspace
+      - Click the page in the sidebar
+    expected:
+      - The workspace heading is "Espacio de <username>"
+      - The page shows "Solo lectura" and its title
+      - There are no Compartir or Archivar buttons
+    spec: tests/regression/sharing.spec.js
+  - id: TC0023
+    title: A page that was not shared is not visible to the guest
+    priority: high
+    type: ui
+    automation: automated
+    preconditions:
+      - Signed in as the QA guest (guest profile)
+      - A page named qa-auto-<time> exists in the owner's default workspace (created through the API)
+      - The page is not shared
+    steps:
+      - Open the owner's workspace
+    expected:
+      - The page does not appear in the sidebar
+    spec: tests/regression/sharing.spec.js

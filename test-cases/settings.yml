@@ -1,0 +1,104 @@
+area: Settings
+feature: Preferences, profile, members and groups
+cases:
+  - id: TC0029
+    title: Preferences show appearance, editor options and the app version
+    priority: medium
+    type: ui
+    automation: automated
+    preconditions:
+      - Signed in as the QA owner (default profile)
+    steps:
+      - Open /settings
+    expected:
+      - The theme group has three options
+      - '"Vista compacta" is available'
+      - '"Editor con formato" is on'
+      - The application version is shown
+    spec: tests/regression/settings.spec.js
+  - id: TC0030
+    title: Choosing a theme selects its option
+    priority: low
+    type: ui
+    automation: automated
+    preconditions:
+      - Signed in as the QA owner (default profile)
+    steps:
+      - Open /settings
+      - Choose "Oscuro"
+      - Choose "Sistema" again
+    expected:
+      - '"Oscuro" is selected and the document gets the dark class'
+      - '"Sistema" is selected afterwards (default restored)'
+    spec: tests/regression/settings.spec.js
+  - id: TC0031
+    title: The profile shows the name, the username and the workspaces with their role
+    priority: medium
+    type: ui
+    automation: automated
+    preconditions:
+      - Signed in as the QA owner (default profile)
+    steps:
+      - Open /profile
+    expected:
+      - The name field is filled and "Guardar nombre" is disabled
+      - The username is shown
+      - The own workspace is listed as "Propietario"
+    spec: tests/regression/settings.spec.js
+  - id: TC0032
+    title: The members page lists the owner and the guest with a role selector for the guest
+    priority: high
+    type: ui
+    automation: automated
+    preconditions:
+      - Signed in as the QA owner (default profile)
+    steps:
+      - Open /w/<workspace>/settings/members
+    expected:
+      - The owner is listed as "Propietario"
+      - The guest is listed with the role selector set to "Invitado"
+      - The new member role offers Administrador, Miembro and Invitado
+    spec: tests/regression/settings.spec.js
+  - id: TC0033
+    title: The add member button stays disabled until an email is typed
+    priority: medium
+    type: ui
+    automation: automated
+    preconditions:
+      - Signed in as the QA owner (default profile)
+    steps:
+      - Open the members page
+      - Type an email
+      - Clear the email
+    expected:
+      - '"Agregar" is disabled, then enabled with an email, then disabled again (nothing is added)'
+    spec: tests/regression/settings.spec.js
+  - id: TC0034
+    title: The groups page lists the QA group and keeps create disabled without a name
+    priority: medium
+    type: ui
+    automation: automated
+    preconditions:
+      - Signed in as the QA owner (default profile)
+      - The group "Equipo QA" exists
+    steps:
+      - Open /w/<workspace>/settings/groups
+      - Type a group name without submitting
+    expected:
+      - '"Crear" is disabled while the name is empty and enabled after typing'
+      - '"Equipo QA" is listed with the owner as member'
+    spec: tests/regression/settings.spec.js
+  - id: TC0035
+    title: The workspace switcher lists the account workspaces and the create option
+    priority: medium
+    type: ui
+    automation: automated
+    preconditions:
+      - Signed in as the QA owner (default profile)
+    steps:
+      - Open the workspace
+      - Click "Cambiar de espacio de trabajo"
+    expected:
+      - The own workspace is listed as "Propietario"
+      - '"Crear espacio de trabajo" is available'
+    spec: tests/regression/settings.spec.js
