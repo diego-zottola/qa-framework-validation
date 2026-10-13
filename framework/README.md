@@ -137,6 +137,46 @@ Limits: only `getByRole/Text/Label/Placeholder/Title` with literal strings; no s
 the opposite-action and scope lists are Spanish and English and not exhaustive. Optional tier 3 asks an LLM to pick from the page's own elements for failures
 the rules cannot settle (element names are sent to the provider); its pick passes the same mechanical checks.
 
+## What has been validated, and how
+
+Three levels, kept apart on purpose. "Real" means a real GitHub repository, real Actions runs and the real application (Notion Knockoff on Vercel).
+
+**Real services**
+
+- `init` from a clean copy of the template, including the Claude Code step (no manual edit afterwards): a private repository (`qa-framework-clean-run`) got
+  42 tests (4 login smoke tests from the scaffold, 28 UI and 10 API tests written by Claude) with 46 catalog definitions (the rest manual or planned), `SUPABASE_ANON_KEY` and `API_BASE_URL` registered by Claude through `qa env add`, secrets uploaded, push,
+  Checks and Smoke runs. Pages was refused by GitHub (free plan): `init` listed it as pending, and the deploy job skipped itself with a notice.
+- Public repository (`qa-framework-validation`, Pages enabled by `init`): smoke, regression and API runs published to Pages; two runs publishing together; a run
+  older than 15 days removed from branch and site; history squashed to one commit by the cleanup (19 commits to 1); newest run has no screenshots, traces or
+  videos; the artifacts of public runs hold only the sanitized report (15 days); a leak scan with the real QA credentials over the whole published site found nothing.
+- Failing runs: locators renamed on purpose were diagnosed as selector failures; a renamed locator got a suggestion that passed the re-run and `heal check`
+  confirmed the patch fit its revision; after a later commit it reported the patch stale and `git apply --check` failing; an assertion on a renamed locator
+  got no suggestion; a candidate name that other locators already use went to `needs-review` and stayed out of the patch. Two real runs found bugs (the `waitFor`
+  message, the over-strict name guard), fixed in 1.2.2 and 1.2.3.
+- After those failures and re-runs, `qa sweep --dry-run` found no leftover `qa-auto-` data.
+- `qa upgrade` across 1.0.0 to 1.2.4 on both projects.
+
+**Simulated (mock servers, fake `gh`, local git)**
+
+- Slack, Jira and the LLM providers: HTTP servers that check request shape, deduplication, and that failures never change test results.
+- Visual workflow: the Playwright comparison runs for real locally; the shell steps of the workflow (pack baselines, unpack in the writing job, push only the review
+  branch) run against a local bare repository; permissions are asserted from the generated YAML.
+- Pages enabled check and deploy skip: the step's shell run with a fake `gh`.
+- Concurrent publishing to the branch: two writers racing on a local bare remote (the real run above confirms it on GitHub).
+- Selector patches: applied with `git apply` in temporary repositories, including first and last lines and files without a final newline.
+
+**Not validated**
+
+- Slack, Jira and an LLM provider with real credentials.
+- The visual workflow on a GitHub runner (baselines produced on Linux, the review branch push).
+- The product deploy trigger from a product repository (needs a token only the owner can create; its documented permission is from GitHub's API docs, not exercised).
+- Pages for a private repository on a paid plan, and a fork pull request against a public repository (only the generated permissions are asserted).
+- Anything on Windows runners.
+- Generated tests are not guaranteed stable: one of three Smoke runs of the clean project failed on a generated test (a saved text missing after reload, 3 of 3 attempts in that run); the other two passed. Not investigated: it may be the test or the application.
+
+Recommended repository setting, not changed by `init`: for a public repository, Settings > Actions > General > "Fork pull request workflows" set to require approval
+for all outside collaborators (`Checks` has no secrets, but it runs the pull request's code in your Actions minutes).
+
 ## Updating a project
 
 Creating a repository from a template does not link it to the template. This is the minimal mechanism:

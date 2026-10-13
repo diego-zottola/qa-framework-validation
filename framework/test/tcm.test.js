@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium, expect } from '@playwright/test';
-import { parseRoute, routeFor, filterCases } from '../tcm/model.js';
+import { parseRoute, routeFor, filterCases, buildTree } from '../tcm/model.js';
 
 const tcmDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../tcm');
 const cases = [
@@ -16,7 +16,8 @@ const cases = [
 const catalog = { generatedAt: '2026-01-01T00:00:00Z', stats: { total: 3 }, areas: [{ name: 'Pages', features: [{ name: 'Create', cases: ['TC0001'] }, { name: 'List', cases: ['TC0002'] }] }, { name: 'Auth', features: [{ name: 'Login', cases: ['TC0003'] }] }], cases };
 
 test('routes round-trip, including names with spaces and slashes', () => {
-  assert.deepEqual(parseRoute(routeFor.feature('A / B', 'C d')), { view: 'list', area: 'A / B', feature: 'C d' });
+  assert.deepEqual(parseRoute(routeFor.feature('ui', 'A / B', 'C d')), { view: 'list', type: 'ui', area: 'A / B', feature: 'C d' });
+  assert.deepEqual(parseRoute(routeFor.type('api')), { view: 'list', type: 'api' });
   assert.deepEqual(parseRoute(routeFor.case('TC0001')), { view: 'case', id: 'TC0001' });
   assert.deepEqual(parseRoute(''), { view: 'list' });
 });
@@ -47,7 +48,13 @@ test('the TCM page browses areas, searches, opens a case and never executes cata
     await page.getByRole('link', { name: 'All cases (3)' }).waitFor();
     await expect(page.locator('tbody tr')).toHaveCount(3);
 
-    await page.getByRole('link', { name: 'Pages (2)' }).click();
+    // UI and API are the top level; every other area is a subfolder of one of them.
+    await expect(page.locator('nav a.type')).toHaveText(['UI (2)', 'API (1)']);
+    await page.getByRole('link', { name: 'API (1)' }).click();
+    await expect(page.locator('tbody tr')).toHaveCount(1);
+    await page.getByRole('link', { name: 'Pages (1)' }).first().click();
+    await expect(page.locator('tbody tr')).toHaveCount(1);
+    await page.getByRole('link', { name: 'UI (2)' }).click();
     await expect(page.locator('tbody tr')).toHaveCount(2);
 
     await page.getByRole('searchbox', { name: 'Search cases' }).fill('click new');
@@ -68,4 +75,10 @@ test('the TCM page browses areas, searches, opens a case and never executes cata
     await browser.close();
     server.close();
   }
+});
+
+test('the tree puts UI first, API second, and nests areas and features under them', () => {
+  const tree = buildTree(cases);
+  assert.deepEqual(tree.map((g) => [g.type, g.count]), [['ui', 2], ['api', 1]]);
+  assert.deepEqual(tree[0].areas.map((a) => a.name), ['Pages', 'Auth']);
 });

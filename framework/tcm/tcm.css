@@ -7,7 +7,7 @@ h1 { font-size:18px; margin:0; } #meta { color:var(--muted); }
 .layout { display:grid; grid-template-columns:260px 1fr; min-height:calc(100vh - 50px); }
 nav { background:var(--side); border-right:1px solid var(--line); padding:8px; overflow:auto; }
 nav a { display:block; padding:4px 8px; border-radius:6px; color:var(--fg); text-decoration:none; }
-nav a.area { font-weight:600; margin-top:6px; } nav a.feature { padding-left:22px; color:var(--muted); }
+nav a.type { font-weight:700; text-transform:uppercase; letter-spacing:.04em; margin-top:10px; } nav a.area { font-weight:600; padding-left:22px; } nav a.feature { padding-left:38px; color:var(--muted); }
 nav a.active { background:color-mix(in srgb, var(--accent) 18%, transparent); color:var(--fg); }
 main { padding:16px; min-width:0; }
 #toolbar { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }

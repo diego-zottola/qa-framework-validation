@@ -1,4 +1,4 @@
-import { parseRoute, routeFor, filterCases, distinct } from './model.js';
+import { parseRoute, routeFor, filterCases, distinct, buildTree } from './model.js';
 
 const $ = (selector) => document.querySelector(selector);
 const el = (tag, props = {}, ...children) => {
@@ -23,15 +23,19 @@ function fillSelect(select, values) {
   for (const value of values) select.append(el('option', { value, textContent: value }));
 }
 
+const typeLabel = (type) => type.toUpperCase();
+
 function renderTree(route) {
   const tree = $('#tree');
-  tree.replaceChildren(el('a', { href: routeFor.all(), className: !route.area && route.view === 'list' ? 'active' : '', textContent: `All cases (${catalog.cases.length})` }));
-  for (const area of catalog.areas) {
-    const count = area.features.reduce((n, f) => n + f.cases.length, 0);
-    tree.append(el('a', { href: routeFor.area(area.name), className: `area${route.area === area.name && !route.feature ? ' active' : ''}`, textContent: `${area.name} (${count})` }));
-    for (const feature of area.features) {
-      const active = route.area === area.name && route.feature === feature.name;
-      tree.append(el('a', { href: routeFor.feature(area.name, feature.name), className: `feature${active ? ' active' : ''}`, textContent: `${feature.name} (${feature.cases.length})` }));
+  tree.replaceChildren(el('a', { href: routeFor.all(), className: route.view === 'list' && !route.type ? 'active' : '', textContent: `All cases (${catalog.cases.length})` }));
+  for (const group of buildTree(catalog.cases)) {
+    tree.append(el('a', { href: routeFor.type(group.type), className: `type${route.type === group.type && !route.area ? ' active' : ''}`, textContent: `${typeLabel(group.type)} (${group.count})` }));
+    for (const area of group.areas) {
+      tree.append(el('a', { href: routeFor.area(group.type, area.name), className: `area${route.type === group.type && route.area === area.name && !route.feature ? ' active' : ''}`, textContent: `${area.name} (${area.count})` }));
+      for (const feature of area.features) {
+        const active = route.type === group.type && route.area === area.name && route.feature === feature.name;
+        tree.append(el('a', { href: routeFor.feature(group.type, area.name, feature.name), className: `feature${active ? ' active' : ''}`, textContent: `${feature.name} (${feature.count})` }));
+      }
     }
   }
 }
@@ -41,8 +45,8 @@ function badge(text, kind) {
 }
 
 function renderList(route) {
-  const cases = filterCases(catalog.cases, { ...state, area: route.area ?? '', feature: route.feature ?? '' });
-  const heading = route.feature ? `${route.area} / ${route.feature}` : (route.area ?? 'All cases');
+  const cases = filterCases(catalog.cases, { ...state, type: route.type ?? state.type, area: route.area ?? '', feature: route.feature ?? '' });
+  const heading = [route.type && typeLabel(route.type), route.area, route.feature].filter(Boolean).join(' / ') || 'All cases';
   const table = el('table', {}, el('thead', {}, el('tr', {}, ['ID', 'Title', 'Type', 'Priority', 'Automation'].map((h) => el('th', { textContent: h })))));
   const body = el('tbody');
   for (const c of cases) {
@@ -77,7 +81,7 @@ function renderCase(id) {
   }
   const source = c.spec ? `${c.spec.file}:${c.spec.line}${c.spec.tests > 1 ? ` (${c.spec.tests} tests)` : ''}` : 'Not automated';
   $('#content').replaceChildren(
-    el('a', { href: routeFor.feature(c.area, c.feature), textContent: `← ${c.area} / ${c.feature}` }),
+    el('a', { href: routeFor.feature(c.type, c.area, c.feature), textContent: `← ${typeLabel(c.type)} / ${c.area} / ${c.feature}` }),
     el('h2', { textContent: `${c.id} · ${c.title}` }),
     el('p', { className: 'badges' }, badge(c.type, 'type'), badge(c.priority, 'priority'), badge(c.automation, 'automation'), c.draft ? badge('draft', 'automation') : '', c.defect ? el('span', { className: 'badge defect', textContent: `defect ${c.defect}` }) : ''),
     section('Preconditions', c.preconditions),
