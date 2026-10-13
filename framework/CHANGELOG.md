@@ -26,3 +26,9 @@ First versioned release of the shared core (everything under `framework/`).
 
 - Flaky tests in the diagnosis show the first error of the failed attempts.
 - No manual step.
+
+## 1.1.2
+
+- Healer: names are matched by shared words, containment or a close edit distance (0.7+). A long shared word no longer makes unrelated
+  buttons look alike (found on a real project: a wrong suggestion, caught only by the verification re-run).
+- No manual step.

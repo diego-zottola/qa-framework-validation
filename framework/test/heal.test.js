@@ -52,6 +52,15 @@ test('similarity ignores case, accents and punctuation, and rewards containment'
 
 const parsedOf = (e) => parseExpression(e);
 
+test('a long shared word does not make unrelated names similar (real case: "Archivar página" vs "Nueva página")', () => {
+  assert.ok(similarity('Archivar página', 'Nueva página') < 0.6);
+  const p = proposeReplacement({ parsed: parsedOf("getByRole('button', { name: 'Archivar página', exact: true })"), snapshot: '- button "Nueva página"\n- button "Cerrar sesión"\n- button "Ir a la papelera"', action: 'click' });
+  assert.equal(p.status, 'none');
+  const ok = proposeReplacement({ parsed: parsedOf("getByRole('button', { name: 'Archivar página', exact: true })"), snapshot: '- button "Archivar"\n- button "Nueva página"', action: 'click' });
+  assert.equal(ok.candidate.name, 'Archivar');
+  assert.deepEqual(ok.alternatives, [], 'the weak look-alike is not even listed');
+});
+
 test('a renamed button gets a suggestion with a unique, same-role, exact replacement', () => {
   const p = proposeReplacement({ parsed: parsedOf("getByRole('button', { name: 'Guardar' })"), snapshot: '- heading "Ajustes"\n- button "Guardar cambios"\n- button "Cancelar"', action: 'click' });
   assert.equal(p.status, 'suggested');

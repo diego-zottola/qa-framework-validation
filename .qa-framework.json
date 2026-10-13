@@ -1,5 +1,5 @@
 {
-  "frameworkVersion": "1.1.1",
+  "frameworkVersion": "1.1.2",
   "app": {
     "name": "Notion Knockoff",
     "slug": "notion-knockoff",
@@ -38,9 +38,9 @@
     "includeTraces": "auto"
   },
   "files": {
-    "framework/CHANGELOG.md": "28b2db8be43bce820b3041f22c2ac720d63676595aa655b669d7f52e684437a3",
+    "framework/CHANGELOG.md": "39c49b8d2eb5c0a8d92d0ad7957685961459b3e88b0413743c76047983063988",
     "framework/README.md": "d138d0ebc3acaf1af4e2c9fe0157f592bb8ce416fb1c07aec80b80e50102d059",
-    "framework/VERSION": "cc52f678848b814373757b460383bf61960e4943c203735adde0a350b3e50989",
+    "framework/VERSION": "77123b8e4bdbd54505bf6e8021527ac60281602a06fe307564532c4dba39dbca",
     "framework/bin/qa.mjs": "85423fb0f63caf48f3e1df466b3ffacb60c0caf150b2321d92c15cf27dd0fa09",
     "framework/lib/api/coverage.js": "8dd6d7802ac1bd493c870cd4d23387273a0eb183651d85601d6d0a18802e9f43",
     "framework/lib/api/discover.js": "bb9c7bdda6e2bd2ee55e4eb67d0e1384057c367dca73501237b1565fa01eeb13",
@@ -59,7 +59,7 @@
     "framework/lib/explore.js": "4455bd6b9291a04325bc0af3c180f72d5a8806505f58604538e66738bd98ca51",
     "framework/lib/github.js": "48b76c4546cd6de39ddf036dbac26f721a9675479008a31747cd0fd9305489de",
     "framework/lib/heal/llm-tier.js": "08d3b82f07214b3d1490f1f9f32dde01b3196a223ffe0f7c6c081fe16e48be9f",
-    "framework/lib/heal/locator.js": "369e9a7e77fb2b6014e87641c89f15fea7b9886a948f8c7e5b40d9768fe11a5f",
+    "framework/lib/heal/locator.js": "c93ea1711b05096c4f8aa46a58063784f3214d322f4f81fa30b3a4c47e5c380b",
     "framework/lib/heal/report.js": "83cb820e96711214b78c405a4aaddebcb782d52ca9ed37563fd80cf460835644",
     "framework/lib/heal/source.js": "d9245132ad51d68e8dbe87f308011bf14390632801f37700711c7001612b3899",
     "framework/lib/ids.js": "c433e2e2abfdf32666acdb8a97175b29a36a7026ec9fbd099a04217f7fa80402",
@@ -111,7 +111,7 @@
     "framework/test/envvars.test.js": "61ed677106aecfb85fa5a6839a6981d8af905319d15d792dd3c2a18f4e8d2b14",
     "framework/test/fixture-app.js": "8cb86bc6e22ccec6c153eb1191d0040caa7e3971d2b52d4350e8b6c22d480bd0",
     "framework/test/github.test.js": "9fc778a8fbcf222289f0913388d462d1c05fbe2dad600a3da2fc3f346fe010ef",
-    "framework/test/heal.test.js": "fc2f2a3a858190b534ef4c9efa9b864feef321b19473e221f81e39d446f19e57",
+    "framework/test/heal.test.js": "39eb37b87cab6118f96b44f66814beacf68d8cfc6639e429a8d26a1ee3bf7d72",
     "framework/test/helpers.js": "bc5e35326bf6999d817f986fa54ba7b0daaf59f4df27b21eb94ec4d9fa2623f2",
     "framework/test/init.e2e.test.js": "d8f3cc0f8470bcbf71a8bdcd6ff953400af70a6f0cb87f3f671973ad924f57e9",
     "framework/test/integrations.test.js": "4cfc929e841c702f284ef5b939bbf0c69f7997f951821b23570359d406b0cd14",

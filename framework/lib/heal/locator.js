@@ -75,7 +75,11 @@ function levenshtein(a, b) {
   return row[b.length];
 }
 
-/** 0..1 similarity of two accessible names: token overlap, edit distance, or one containing the other. */
+/**
+ * 0..1 similarity of two accessible names: token overlap, one containing the other, or a close edit distance.
+ * Edit distance only counts from 0.7: below that a long shared word ("página") makes unrelated names look alike
+ * ("Archivar página" vs "Nueva página" scored 0.6 on a real project and produced a wrong suggestion).
+ */
 export function similarity(a, b) {
   const x = normalize(a);
   const y = normalize(b);
@@ -87,7 +91,7 @@ export function similarity(a, b) {
   const jaccard = shared / new Set([...tx, ...ty]).size;
   const edit = 1 - levenshtein(x, y) / Math.max(x.length, y.length);
   const contains = (x.includes(y) || y.includes(x)) && Math.min(x.length, y.length) >= 3 ? 0.75 : 0;
-  return Math.max(jaccard, edit, contains);
+  return Math.max(jaccard, edit >= 0.7 ? edit : 0, contains);
 }
 
 const TEXT_ROLES = ['button', 'link', 'heading', 'tab', 'menuitem', 'option', 'checkbox', 'radio', 'switch'];
@@ -127,14 +131,14 @@ export function proposeReplacement({ parsed, snapshot, action }) {
   const ranked = [...seen.values()].sort((a, b) => b.score - a.score);
   const [best, second] = ranked;
   if (!best || best.score < THRESHOLD) return { status: 'none', reason: 'no element of the same kind has a similar name: the element may have been removed (possible product change)' };
-  if (second && best.score - second.score < MARGIN) return { status: 'ambiguous', reason: 'several elements look equally close', alternatives: ranked.slice(0, 3).map(({ role, name, score }) => ({ role, name, score: round(score) })) };
+  if (second && best.score - second.score < MARGIN) return { status: 'ambiguous', reason: 'several elements look equally close', alternatives: ranked.slice(0, 3).filter((r) => r.score >= 0.4).map(({ role, name, score }) => ({ role, name, score: round(score) })) };
   if (best.copies > 1) return { status: 'ambiguous', reason: `${best.copies} elements share the name "${best.name}"`, alternatives: [{ role: best.role, name: best.name, score: round(best.score) }] };
   const replacement = `getByRole(${quote(best.role)}, { name: ${quote(best.name)}, exact: true })${parsed.chain}`;
   return {
     status: 'suggested',
     candidate: { role: best.role, name: best.name, score: round(best.score) },
     replacement,
-    alternatives: ranked.slice(1, 3).map(({ role, name, score }) => ({ role, name, score: round(score) })),
+    alternatives: ranked.slice(1, 3).filter((r) => r.score >= 0.4).map(({ role, name, score }) => ({ role, name, score: round(score) })),
     checks: { uniqueInSnapshot: true, sameKind: true, threshold: THRESHOLD },
   };
 }
