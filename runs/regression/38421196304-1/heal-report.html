@@ -1,0 +1,48 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Selector healing suggestions · regression run 38421196304</title><style>body{font:14px/1.5 system-ui,sans-serif;max-width:1000px;margin:16px auto;padding:0 16px}pre{white-space:pre-wrap;word-break:break-word}@media(prefers-color-scheme:dark){body{background:#0d1117;color:#e6edf3}}</style></head><body><p><a href="../../../index.html">All runs</a></p><h1>Selector healing suggestions · regression run 38421196304</h1><pre>## Selector healing (suggestion mode)
+
+Suggestions only. Nothing in the repository was modified. A passing re-run means the new locator found one element and the test then passed once; it is not proof the test is right. Review every diff. Assertions and expected values are never changed.
+
+### TC0012 - archiving a page asks for confirmation and moves it to the trash
+
+- Status: **suggested** · re-run with the change: **passed**
+- Diagnosis: selector (medium)
+- Failing locator: `getByRole(&#39;button&#39;, { name: &#39;Archivar página&#39;, exact: true })`
+- Candidate: button &quot;Archivar&quot; (similarity 0.75)
+- Source: `pages/EditorPage.js:14`
+
+```diff
+--- a/pages/EditorPage.js
++++ b/pages/EditorPage.js
+@@ -11,7 +11,7 @@
+     this.breadcrumb = page.getByRole(&#39;navigation&#39;, { name: &#39;Ruta de la página&#39; });
+     this.shareButton = page.getByRole(&#39;button&#39;, { name: &#39;Compartir&#39;, exact: true });
+     this.moveButton = page.getByRole(&#39;button&#39;, { name: &#39;Mover&#39;, exact: true });
+-    this.archiveButton = page.getByRole(&#39;button&#39;, { name: &#39;Archivar página&#39;, exact: true });
++    this.archiveButton = page.getByRole(&#39;button&#39;, { name: &#39;Archivar&#39;, exact: true });
+     this.readOnlyBadge = page.getByText(&#39;Solo lectura&#39;);
+     this.emptyNotice = page.getByText(&#39;Esta página está vacía.&#39;);
+     this.archiveConfirm = page.getByRole(&#39;alertdialog&#39;, { name: &#39;¿Archivar esta página?&#39; });
+```
+
+### TC0013 - cancelling the archive confirmation keeps the page
+
+- Status: **suggested** · re-run with the change: **passed**
+- Diagnosis: selector (medium)
+- Failing locator: `getByRole(&#39;button&#39;, { name: &#39;Archivar página&#39;, exact: true })`
+- Candidate: button &quot;Archivar&quot; (similarity 0.75)
+- Source: `pages/EditorPage.js:14`
+
+```diff
+--- a/pages/EditorPage.js
++++ b/pages/EditorPage.js
+@@ -11,7 +11,7 @@
+     this.breadcrumb = page.getByRole(&#39;navigation&#39;, { name: &#39;Ruta de la página&#39; });
+     this.shareButton = page.getByRole(&#39;button&#39;, { name: &#39;Compartir&#39;, exact: true });
+     this.moveButton = page.getByRole(&#39;button&#39;, { name: &#39;Mover&#39;, exact: true });
+-    this.archiveButton = page.getByRole(&#39;button&#39;, { name: &#39;Archivar página&#39;, exact: true });
++    this.archiveButton = page.getByRole(&#39;button&#39;, { name: &#39;Archivar&#39;, exact: true });
+     this.readOnlyBadge = page.getByText(&#39;Solo lectura&#39;);
+     this.emptyNotice = page.getByText(&#39;Esta página está vacía.&#39;);
+     this.archiveConfirm = page.getByRole(&#39;alertdialog&#39;, { name: &#39;¿Archivar esta página?&#39; });
+```
+</pre></body></html>

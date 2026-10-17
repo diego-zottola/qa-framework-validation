@@ -1,0 +1,74 @@
+{
+  "generatedAt": "2026-10-13T15:30:53.433Z",
+  "notice": "Suggestions only. Nothing in the repository was modified. A passing re-run means the new locator found one element and the test then passed once; it is not proof the test is right. Review every diff. Assertions and expected values are never changed.",
+  "proposals": [
+    {
+      "title": "TC0012 - archiving a page asks for confirmation and moves it to the trash",
+      "file": "tests/regression/pages.spec.js",
+      "project": "chromium",
+      "line": 28,
+      "diagnosis": {
+        "category": "selector",
+        "confidence": "medium"
+      },
+      "original": "getByRole('button', { name: 'Archivar página', exact: true })",
+      "status": "suggested",
+      "proposedBy": "rules",
+      "candidate": {
+        "role": "button",
+        "name": "Archivar",
+        "score": 0.75
+      },
+      "alternatives": [],
+      "live": {
+        "count": 1,
+        "visible": true,
+        "enabled": true
+      },
+      "replacement": "getByRole('button', { name: 'Archivar', exact: true })",
+      "source": {
+        "file": "pages/EditorPage.js",
+        "line": 14
+      },
+      "diff": "--- a/pages/EditorPage.js\n+++ b/pages/EditorPage.js\n@@ -11,7 +11,7 @@\n     this.breadcrumb = page.getByRole('navigation', { name: 'Ruta de la página' });\n     this.shareButton = page.getByRole('button', { name: 'Compartir', exact: true });\n     this.moveButton = page.getByRole('button', { name: 'Mover', exact: true });\n-    this.archiveButton = page.getByRole('button', { name: 'Archivar página', exact: true });\n+    this.archiveButton = page.getByRole('button', { name: 'Archivar', exact: true });\n     this.readOnlyBadge = page.getByText('Solo lectura');\n     this.emptyNotice = page.getByText('Esta página está vacía.');\n     this.archiveConfirm = page.getByRole('alertdialog', { name: '¿Archivar esta página?' });\n",
+      "verification": {
+        "status": "passed",
+        "detail": "passed once with the new locator"
+      }
+    },
+    {
+      "title": "TC0013 - cancelling the archive confirmation keeps the page",
+      "file": "tests/regression/pages.spec.js",
+      "project": "chromium",
+      "line": 39,
+      "diagnosis": {
+        "category": "selector",
+        "confidence": "medium"
+      },
+      "original": "getByRole('button', { name: 'Archivar página', exact: true })",
+      "status": "suggested",
+      "proposedBy": "rules",
+      "candidate": {
+        "role": "button",
+        "name": "Archivar",
+        "score": 0.75
+      },
+      "alternatives": [],
+      "live": {
+        "count": 1,
+        "visible": true,
+        "enabled": true
+      },
+      "replacement": "getByRole('button', { name: 'Archivar', exact: true })",
+      "source": {
+        "file": "pages/EditorPage.js",
+        "line": 14
+      },
+      "diff": "--- a/pages/EditorPage.js\n+++ b/pages/EditorPage.js\n@@ -11,7 +11,7 @@\n     this.breadcrumb = page.getByRole('navigation', { name: 'Ruta de la página' });\n     this.shareButton = page.getByRole('button', { name: 'Compartir', exact: true });\n     this.moveButton = page.getByRole('button', { name: 'Mover', exact: true });\n-    this.archiveButton = page.getByRole('button', { name: 'Archivar página', exact: true });\n+    this.archiveButton = page.getByRole('button', { name: 'Archivar', exact: true });\n     this.readOnlyBadge = page.getByText('Solo lectura');\n     this.emptyNotice = page.getByText('Esta página está vacía.');\n     this.archiveConfirm = page.getByRole('alertdialog', { name: '¿Archivar esta página?' });\n",
+      "verification": {
+        "status": "passed",
+        "detail": "passed once with the new locator"
+      }
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Selector healing suggestions · regression run 38434847387</title><style>body{font:14px/1.5 system-ui,sans-serif;max-width:1000px;margin:16px auto;padding:0 16px}pre{white-space:pre-wrap;word-break:break-word}@media(prefers-color-scheme:dark){body{background:#0d1117;color:#e6edf3}}</style></head><body><p><a href="../../../index.html">All runs</a></p><h1>Selector healing suggestions · regression run 38434847387</h1><pre>## Selector healing (suggestion mode)
+
+Suggestions only. Nothing in the repository was modified. A passing re-run means the new locator found one element and the test then passed once; it is not proof that this is the same element or the same action as before. A person must confirm that every candidate is the intended element before applying a diff. Assertions and expected values are never changed. A patch fits only the revision it was generated for: run `npm run qa -- heal check` before applying it.
+
+### TC0012 - archiving a page asks for confirmation and moves it to the trash
+
+- Status: **needs-review** (not a confirmed fix: review required)
+- Diagnosis: selector (medium)
+- Original failure (kept): TimeoutError: locator.click: Timeout 10000ms exceeded.
+- Name change: removed [pagina] · added []: confirm it is the same action
+- Failing locator: `getByRole(&#39;button&#39;, { name: &#39;Archivar página&#39;, exact: true })`
+- Why: the candidate name &quot;Archivar&quot; is already used by other locators (pages/EditorPage.js:66, pages/WorkspacePage.js:50): it may be a different element than the renamed one. Not included in heal.patch
+- Candidate: button &quot;Archivar&quot; (similarity 0.75)
+- Source: `pages/EditorPage.js:14`
+
+```diff
+--- a/pages/EditorPage.js
++++ b/pages/EditorPage.js
+@@ -11,7 +11,7 @@
+     this.breadcrumb = page.getByRole(&#39;navigation&#39;, { name: &#39;Ruta de la página&#39; });
+     this.shareButton = page.getByRole(&#39;button&#39;, { name: &#39;Compartir&#39;, exact: true });
+     this.moveButton = page.getByRole(&#39;button&#39;, { name: &#39;Mover&#39;, exact: true });
+-    this.archiveButton = page.getByRole(&#39;button&#39;, { name: &#39;Archivar página&#39;, exact: true });
++    this.archiveButton = page.getByRole(&#39;button&#39;, { name: &#39;Archivar&#39;, exact: true });
+     this.readOnlyBadge = page.getByText(&#39;Solo lectura&#39;);
+     this.emptyNotice = page.getByText(&#39;Esta página está vacía.&#39;);
+     this.archiveConfirm = page.getByRole(&#39;alertdialog&#39;, { name: &#39;¿Archivar esta página?&#39; });
+```
+
+### TC0013 - cancelling the archive confirmation keeps the page
+
+- Status: **needs-review** (not a confirmed fix: review required)
+- Diagnosis: selector (medium)
+- Original failure (kept): TimeoutError: locator.click: Timeout 10000ms exceeded.
+- Name change: removed [pagina] · added []: confirm it is the same action
+- Failing locator: `getByRole(&#39;button&#39;, { name: &#39;Archivar página&#39;, exact: true })`
+- Why: the candidate name &quot;Archivar&quot; is already used by other locators (pages/EditorPage.js:66, pages/WorkspacePage.js:50): it may be a different element than the renamed one. Not included in heal.patch
+- Candidate: button &quot;Archivar&quot; (similarity 0.75)
+- Source: `pages/EditorPage.js:14`
+
+```diff
+--- a/pages/EditorPage.js
++++ b/pages/EditorPage.js
+@@ -11,7 +11,7 @@
+     this.breadcrumb = page.getByRole(&#39;navigation&#39;, { name: &#39;Ruta de la página&#39; });
+     this.shareButton = page.getByRole(&#39;button&#39;, { name: &#39;Compartir&#39;, exact: true });
+     this.moveButton = page.getByRole(&#39;button&#39;, { name: &#39;Mover&#39;, exact: true });
+-    this.archiveButton = page.getByRole(&#39;button&#39;, { name: &#39;Archivar página&#39;, exact: true });
++    this.archiveButton = page.getByRole(&#39;button&#39;, { name: &#39;Archivar&#39;, exact: true });
+     this.readOnlyBadge = page.getByText(&#39;Solo lectura&#39;);
+     this.emptyNotice = page.getByText(&#39;Esta página está vacía.&#39;);
+     this.archiveConfirm = page.getByRole(&#39;alertdialog&#39;, { name: &#39;¿Archivar esta página?&#39; });
+```
+
+### TC0031 - the profile shows the name, the username and the workspaces with their role
+
+- Status: **not-applicable**
+- Diagnosis: unknown (low)
+- Original failure (kept): Error: expect(locator).toBeDisabled() failed
+- Failing locator: `getByRole(&#39;button&#39;, { name: &#39;Guardar nombre de usuario&#39; })`
+- Why: an assertion failed: assertions are never healed
+</pre></body></html>

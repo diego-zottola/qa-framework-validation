@@ -1,0 +1,63 @@
+{
+  "stats": {
+    "startTime": "2026-10-13T16:59:01.541Z",
+    "duration": 96392.063,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 3,
+    "flaky": 0
+  },
+  "counts": {
+    "selector": 2,
+    "unknown": 1
+  },
+  "items": [
+    {
+      "title": "TC0012 - archiving a page asks for confirmation and moves it to the trash",
+      "file": "regression/pages.spec.js",
+      "line": 28,
+      "project": "chromium",
+      "status": "unexpected",
+      "attempts": 3,
+      "category": "selector",
+      "confidence": "medium",
+      "reason": "the element for click never appeared",
+      "alternatives": [
+        "product"
+      ],
+      "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: 'Archivar página', exact: true })\n"
+    },
+    {
+      "title": "TC0013 - cancelling the archive confirmation keeps the page",
+      "file": "regression/pages.spec.js",
+      "line": 39,
+      "project": "chromium",
+      "status": "unexpected",
+      "attempts": 3,
+      "category": "selector",
+      "confidence": "medium",
+      "reason": "the element for click never appeared",
+      "alternatives": [
+        "product"
+      ],
+      "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: 'Archivar página', exact: true })\n"
+    },
+    {
+      "title": "TC0031 - the profile shows the name, the username and the workspaces with their role",
+      "file": "regression/settings.spec.js",
+      "line": 26,
+      "project": "chromium",
+      "status": "unexpected",
+      "attempts": 3,
+      "category": "unknown",
+      "confidence": "low",
+      "reason": "an element was expected but not found: broken selector or removed behavior",
+      "alternatives": [
+        "selector",
+        "product"
+      ],
+      "message": "Error: expect(locator).toBeDisabled() failed\n\nLocator: getByRole('button', { name: 'Guardar nombre de usuario' })\nExpected: disabled\nTimeout: 15000ms\nError: element(s) not found"
+    }
+  ],
+  "setupErrors": []
+}

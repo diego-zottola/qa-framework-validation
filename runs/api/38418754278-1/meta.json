@@ -1,0 +1,18 @@
+{
+  "suite": "api",
+  "runId": "38418754278",
+  "attempt": "1",
+  "sha": "70808ae",
+  "branch": "main",
+  "event": "workflow_dispatch",
+  "startedAt": "2026-10-13T15:04:26.380Z",
+  "finishedAt": "2026-10-13T15:04:39.528Z",
+  "counts": {
+    "passed": 8,
+    "failed": 0,
+    "flaky": 0,
+    "skipped": 0
+  },
+  "status": "passed",
+  "runUrl": "https://github.com/diego-zottola/qa-framework-validation/actions/runs/38418754278"
+}

@@ -1,0 +1,14 @@
+# qa heal patch: suggestions to review, not confirmed fixes
+# generated for revision 3eed5248ff467a32dae55ba69e93fbaeb46b9eda
+# check it with: npm run qa -- heal check
+--- a/pages/WorkspacePage.js
++++ b/pages/WorkspacePage.js
+@@ -4,7 +4,7 @@
+ export class WorkspacePage extends BasePage {
+   constructor(page) {
+     super(page);
+-    this.switcher = page.getByRole('button', { name: 'Cambiar de espacio de trabajo actual' });
++    this.switcher = page.getByRole('button', { name: 'Cambiar de espacio de trabajo', exact: true });
+     this.searchButton = page.getByRole('button', { name: /^Buscar/ });
+     this.newPageButton = page.getByRole('button', { name: 'Nueva página' });
+     this.pageTree = page.getByRole('navigation', { name: 'Páginas' });

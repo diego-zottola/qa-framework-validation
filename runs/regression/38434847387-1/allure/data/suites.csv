@@ -1,0 +1,4 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"","12026","TC0013 - cancelling the archive confirmation keeps the page","chromium","2026-10-13","failed","2026-10-13","Pages","regression/pages.spec.js","",""
+"","12078","TC0012 - archiving a page asks for confirmation and moves it to the trash","chromium","2026-10-13","failed","2026-10-13","Pages","regression/pages.spec.js","",""
+"","15812","TC0031 - the profile shows the name, the username and the workspaces with their role","chromium","2026-10-13","failed","2026-10-13","Settings, profile and administration (owner)","regression/settings.spec.js","",""

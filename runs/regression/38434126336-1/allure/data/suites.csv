@@ -1,0 +1,3 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"","12659","TC0012 - archiving a page asks for confirmation and moves it to the trash","chromium","2026-10-13","failed","2026-10-13","Pages","regression/pages.spec.js","",""
+"","12764","TC0013 - cancelling the archive confirmation keeps the page","chromium","2026-10-13","failed","2026-10-13","Pages","regression/pages.spec.js","",""

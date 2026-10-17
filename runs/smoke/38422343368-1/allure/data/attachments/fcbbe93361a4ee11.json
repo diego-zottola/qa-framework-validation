@@ -1,0 +1,1 @@
+{"status":"ambiguous","reason":"2 elements share the name \"Nueva página\"","alternatives":[{"role":"button","name":"Nueva página","score":0.67}],"original":"getByRole('button', { name: 'Crear página nueva' }).first()","action":"click"}

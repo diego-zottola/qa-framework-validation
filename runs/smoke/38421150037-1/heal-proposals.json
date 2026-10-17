@@ -1,0 +1,39 @@
+{
+  "generatedAt": "2026-10-13T15:22:10.413Z",
+  "notice": "Suggestions only. Nothing in the repository was modified. A passing re-run means the new locator found one element and the test then passed once; it is not proof the test is right. Review every diff. Assertions and expected values are never changed.",
+  "proposals": [
+    {
+      "title": "TC0005 - the owner lands on the default workspace with the full sidebar",
+      "file": "tests/smoke-tests/workspace.spec.js",
+      "project": "chromium",
+      "line": 7,
+      "diagnosis": {
+        "category": "unknown",
+        "confidence": "low"
+      },
+      "original": "getByRole('button', { name: 'Crear página nueva' }).first()",
+      "status": "not-applicable",
+      "reason": "an assertion failed: assertions are never healed"
+    },
+    {
+      "title": "TC0006 - creating a page from the sidebar opens an untitled page in the editor",
+      "file": "tests/smoke-tests/workspace.spec.js",
+      "project": "chromium",
+      "line": 17,
+      "diagnosis": {
+        "category": "selector",
+        "confidence": "medium"
+      },
+      "original": "getByRole('button', { name: 'Crear página nueva' }).first()",
+      "status": "ambiguous",
+      "reason": "2 elements share the name \"Nueva página\"",
+      "alternatives": [
+        {
+          "role": "button",
+          "name": "Nueva página",
+          "score": 0.67
+        }
+      ]
+    }
+  ]
+}

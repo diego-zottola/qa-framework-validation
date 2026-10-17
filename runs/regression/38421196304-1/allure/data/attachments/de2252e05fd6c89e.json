@@ -1,0 +1,1 @@
+{"status":"none","reason":"no element of the same kind has a similar name: the element may have been removed (possible product change)","original":"getByRole('button', { name: 'Archivar página', exact: true })","action":"click"}

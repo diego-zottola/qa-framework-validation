@@ -1,0 +1,179 @@
+{
+  "generatedAt": "2026-10-13T17:09:30.065Z",
+  "revision": "3eed5248ff467a32dae55ba69e93fbaeb46b9eda",
+  "notice": "Suggestions only. Nothing in the repository was modified. A passing re-run means the new locator found one element and the test then passed once; it is not proof that this is the same element or the same action as before. A person must confirm that every candidate is the intended element before applying a diff. Assertions and expected values are never changed. A patch fits only the revision it was generated for: run `npm run qa -- heal check` before applying it.",
+  "proposals": [
+    {
+      "title": "TC0005 - the owner lands on the default workspace with the full sidebar",
+      "file": "tests/smoke-tests/workspace.spec.js",
+      "project": "chromium",
+      "line": 7,
+      "failure": "TimeoutError: locator.waitFor: Timeout 10000ms exceeded.",
+      "diagnosis": {
+        "category": "selector",
+        "confidence": "medium"
+      },
+      "original": "getByRole('button', { name: 'Cambiar de espacio de trabajo actual' })",
+      "status": "suggested",
+      "reviewRequired": true,
+      "differences": {
+        "removed": [
+          "actual"
+        ],
+        "added": []
+      },
+      "proposedBy": "rules",
+      "candidate": {
+        "role": "button",
+        "name": "Cambiar de espacio de trabajo",
+        "score": 0.81
+      },
+      "alternatives": [],
+      "live": {
+        "count": 1,
+        "visible": true,
+        "enabled": true
+      },
+      "replacement": "getByRole('button', { name: 'Cambiar de espacio de trabajo', exact: true })",
+      "source": {
+        "file": "pages/WorkspacePage.js",
+        "line": 7,
+        "sha256": "36596eed8c7d4b9a3ec8ea6cfee04c1e2c86291483d4c3179138e57603d12456"
+      },
+      "diff": "--- a/pages/WorkspacePage.js\n+++ b/pages/WorkspacePage.js\n@@ -4,7 +4,7 @@\n export class WorkspacePage extends BasePage {\n   constructor(page) {\n     super(page);\n-    this.switcher = page.getByRole('button', { name: 'Cambiar de espacio de trabajo actual' });\n+    this.switcher = page.getByRole('button', { name: 'Cambiar de espacio de trabajo', exact: true });\n     this.searchButton = page.getByRole('button', { name: /^Buscar/ });\n     this.newPageButton = page.getByRole('button', { name: 'Nueva página' });\n     this.pageTree = page.getByRole('navigation', { name: 'Páginas' });\n",
+      "verification": {
+        "status": "passed",
+        "detail": "passed once with the new locator"
+      }
+    },
+    {
+      "title": "TC0006 - creating a page from the sidebar opens an untitled page in the editor",
+      "file": "tests/smoke-tests/workspace.spec.js",
+      "project": "chromium",
+      "line": 17,
+      "failure": "TimeoutError: locator.waitFor: Timeout 10000ms exceeded.",
+      "diagnosis": {
+        "category": "selector",
+        "confidence": "medium"
+      },
+      "original": "getByRole('button', { name: 'Cambiar de espacio de trabajo actual' })",
+      "status": "suggested",
+      "reviewRequired": true,
+      "differences": {
+        "removed": [
+          "actual"
+        ],
+        "added": []
+      },
+      "proposedBy": "rules",
+      "candidate": {
+        "role": "button",
+        "name": "Cambiar de espacio de trabajo",
+        "score": 0.81
+      },
+      "alternatives": [],
+      "live": {
+        "count": 1,
+        "visible": true,
+        "enabled": true
+      },
+      "replacement": "getByRole('button', { name: 'Cambiar de espacio de trabajo', exact: true })",
+      "source": {
+        "file": "pages/WorkspacePage.js",
+        "line": 7,
+        "sha256": "36596eed8c7d4b9a3ec8ea6cfee04c1e2c86291483d4c3179138e57603d12456"
+      },
+      "diff": "--- a/pages/WorkspacePage.js\n+++ b/pages/WorkspacePage.js\n@@ -4,7 +4,7 @@\n export class WorkspacePage extends BasePage {\n   constructor(page) {\n     super(page);\n-    this.switcher = page.getByRole('button', { name: 'Cambiar de espacio de trabajo actual' });\n+    this.switcher = page.getByRole('button', { name: 'Cambiar de espacio de trabajo', exact: true });\n     this.searchButton = page.getByRole('button', { name: /^Buscar/ });\n     this.newPageButton = page.getByRole('button', { name: 'Nueva página' });\n     this.pageTree = page.getByRole('navigation', { name: 'Páginas' });\n",
+      "verification": {
+        "status": "passed",
+        "detail": "passed once with the new locator"
+      }
+    },
+    {
+      "title": "TC0008 - a page opens from the sidebar tree",
+      "file": "tests/smoke-tests/workspace.spec.js",
+      "project": "chromium",
+      "line": 38,
+      "failure": "TimeoutError: locator.waitFor: Timeout 10000ms exceeded.",
+      "diagnosis": {
+        "category": "selector",
+        "confidence": "medium"
+      },
+      "original": "getByRole('button', { name: 'Cambiar de espacio de trabajo actual' })",
+      "status": "suggested",
+      "reviewRequired": true,
+      "differences": {
+        "removed": [
+          "actual"
+        ],
+        "added": []
+      },
+      "proposedBy": "rules",
+      "candidate": {
+        "role": "button",
+        "name": "Cambiar de espacio de trabajo",
+        "score": 0.81
+      },
+      "alternatives": [],
+      "live": {
+        "count": 1,
+        "visible": true,
+        "enabled": true
+      },
+      "replacement": "getByRole('button', { name: 'Cambiar de espacio de trabajo', exact: true })",
+      "source": {
+        "file": "pages/WorkspacePage.js",
+        "line": 7,
+        "sha256": "36596eed8c7d4b9a3ec8ea6cfee04c1e2c86291483d4c3179138e57603d12456"
+      },
+      "diff": "--- a/pages/WorkspacePage.js\n+++ b/pages/WorkspacePage.js\n@@ -4,7 +4,7 @@\n export class WorkspacePage extends BasePage {\n   constructor(page) {\n     super(page);\n-    this.switcher = page.getByRole('button', { name: 'Cambiar de espacio de trabajo actual' });\n+    this.switcher = page.getByRole('button', { name: 'Cambiar de espacio de trabajo', exact: true });\n     this.searchButton = page.getByRole('button', { name: /^Buscar/ });\n     this.newPageButton = page.getByRole('button', { name: 'Nueva página' });\n     this.pageTree = page.getByRole('navigation', { name: 'Páginas' });\n",
+      "verification": {
+        "status": "passed",
+        "detail": "passed once with the new locator"
+      }
+    },
+    {
+      "title": "TC0009 - search finds a page by its title",
+      "file": "tests/smoke-tests/workspace.spec.js",
+      "project": "chromium",
+      "line": 46,
+      "failure": "TimeoutError: locator.waitFor: Timeout 10000ms exceeded.",
+      "diagnosis": {
+        "category": "selector",
+        "confidence": "medium"
+      },
+      "original": "getByRole('button', { name: 'Cambiar de espacio de trabajo actual' })",
+      "status": "suggested",
+      "reviewRequired": true,
+      "differences": {
+        "removed": [
+          "actual"
+        ],
+        "added": []
+      },
+      "proposedBy": "rules",
+      "candidate": {
+        "role": "button",
+        "name": "Cambiar de espacio de trabajo",
+        "score": 0.81
+      },
+      "alternatives": [],
+      "live": {
+        "count": 1,
+        "visible": true,
+        "enabled": true
+      },
+      "replacement": "getByRole('button', { name: 'Cambiar de espacio de trabajo', exact: true })",
+      "source": {
+        "file": "pages/WorkspacePage.js",
+        "line": 7,
+        "sha256": "36596eed8c7d4b9a3ec8ea6cfee04c1e2c86291483d4c3179138e57603d12456"
+      },
+      "diff": "--- a/pages/WorkspacePage.js\n+++ b/pages/WorkspacePage.js\n@@ -4,7 +4,7 @@\n export class WorkspacePage extends BasePage {\n   constructor(page) {\n     super(page);\n-    this.switcher = page.getByRole('button', { name: 'Cambiar de espacio de trabajo actual' });\n+    this.switcher = page.getByRole('button', { name: 'Cambiar de espacio de trabajo', exact: true });\n     this.searchButton = page.getByRole('button', { name: /^Buscar/ });\n     this.newPageButton = page.getByRole('button', { name: 'Nueva página' });\n     this.pageTree = page.getByRole('navigation', { name: 'Páginas' });\n",
+      "verification": {
+        "status": "passed",
+        "detail": "passed once with the new locator"
+      }
+    }
+  ]
+}

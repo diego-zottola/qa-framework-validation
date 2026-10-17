@@ -1,0 +1,18 @@
+{
+  "suite": "smoke",
+  "runId": "38420238572",
+  "attempt": "1",
+  "sha": "e12f646",
+  "branch": "main",
+  "event": "push",
+  "startedAt": "2026-10-13T15:14:37.474Z",
+  "finishedAt": "2026-10-13T15:15:48.699Z",
+  "counts": {
+    "passed": 7,
+    "failed": 2,
+    "flaky": 0,
+    "skipped": 0
+  },
+  "status": "failed",
+  "runUrl": "https://github.com/diego-zottola/qa-framework-validation/actions/runs/38420238572"
+}

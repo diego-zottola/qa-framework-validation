@@ -1,0 +1,18 @@
+{
+  "suite": "regression",
+  "runId": "38419603469",
+  "attempt": "1",
+  "sha": "a89ba0f",
+  "branch": "main",
+  "event": "workflow_dispatch",
+  "startedAt": "2026-10-13T15:10:18.824Z",
+  "finishedAt": "2026-10-13T15:11:10.101Z",
+  "counts": {
+    "passed": 25,
+    "failed": 0,
+    "flaky": 1,
+    "skipped": 0
+  },
+  "status": "passed",
+  "runUrl": "https://github.com/diego-zottola/qa-framework-validation/actions/runs/38419603469"
+}

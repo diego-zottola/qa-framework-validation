@@ -1,0 +1,1 @@
+{"status":"unsupported","reason":"locator uses options the healer does not read (regex names, extra filters)","original":"getByRole('button', { name: 'Cambiar de espacio de trabajo actual' }) to be visible","action":"waitFor"}

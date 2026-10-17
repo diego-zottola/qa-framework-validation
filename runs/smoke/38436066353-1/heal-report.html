@@ -1,0 +1,104 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Selector healing suggestions · smoke run 38436066353</title><style>body{font:14px/1.5 system-ui,sans-serif;max-width:1000px;margin:16px auto;padding:0 16px}pre{white-space:pre-wrap;word-break:break-word}@media(prefers-color-scheme:dark){body{background:#0d1117;color:#e6edf3}}</style></head><body><p><a href="../../../index.html">All runs</a></p><h1>Selector healing suggestions · smoke run 38436066353</h1><pre>## Selector healing (suggestion mode)
+
+Suggestions only. Nothing in the repository was modified. A passing re-run means the new locator found one element and the test then passed once; it is not proof that this is the same element or the same action as before. A person must confirm that every candidate is the intended element before applying a diff. Assertions and expected values are never changed. A patch fits only the revision it was generated for: run `npm run qa -- heal check` before applying it.
+
+### TC0005 - the owner lands on the default workspace with the full sidebar
+
+- Status: **suggested** (not a confirmed fix: review required) · re-run with the change: **passed**
+- Diagnosis: selector (medium)
+- Original failure (kept): TimeoutError: locator.waitFor: Timeout 10000ms exceeded.
+- Name change: removed [actual] · added []: confirm it is the same action
+- Re-run detail: passed once with the new locator
+- Failing locator: `getByRole(&#39;button&#39;, { name: &#39;Cambiar de espacio de trabajo actual&#39; })`
+- Candidate: button &quot;Cambiar de espacio de trabajo&quot; (similarity 0.81)
+- Source: `pages/WorkspacePage.js:7`
+
+```diff
+--- a/pages/WorkspacePage.js
++++ b/pages/WorkspacePage.js
+@@ -4,7 +4,7 @@
+ export class WorkspacePage extends BasePage {
+   constructor(page) {
+     super(page);
+-    this.switcher = page.getByRole(&#39;button&#39;, { name: &#39;Cambiar de espacio de trabajo actual&#39; });
++    this.switcher = page.getByRole(&#39;button&#39;, { name: &#39;Cambiar de espacio de trabajo&#39;, exact: true });
+     this.searchButton = page.getByRole(&#39;button&#39;, { name: /^Buscar/ });
+     this.newPageButton = page.getByRole(&#39;button&#39;, { name: &#39;Nueva página&#39; });
+     this.pageTree = page.getByRole(&#39;navigation&#39;, { name: &#39;Páginas&#39; });
+```
+
+### TC0006 - creating a page from the sidebar opens an untitled page in the editor
+
+- Status: **suggested** (not a confirmed fix: review required) · re-run with the change: **passed**
+- Diagnosis: selector (medium)
+- Original failure (kept): TimeoutError: locator.waitFor: Timeout 10000ms exceeded.
+- Name change: removed [actual] · added []: confirm it is the same action
+- Re-run detail: passed once with the new locator
+- Failing locator: `getByRole(&#39;button&#39;, { name: &#39;Cambiar de espacio de trabajo actual&#39; })`
+- Candidate: button &quot;Cambiar de espacio de trabajo&quot; (similarity 0.81)
+- Source: `pages/WorkspacePage.js:7`
+
+```diff
+--- a/pages/WorkspacePage.js
++++ b/pages/WorkspacePage.js
+@@ -4,7 +4,7 @@
+ export class WorkspacePage extends BasePage {
+   constructor(page) {
+     super(page);
+-    this.switcher = page.getByRole(&#39;button&#39;, { name: &#39;Cambiar de espacio de trabajo actual&#39; });
++    this.switcher = page.getByRole(&#39;button&#39;, { name: &#39;Cambiar de espacio de trabajo&#39;, exact: true });
+     this.searchButton = page.getByRole(&#39;button&#39;, { name: /^Buscar/ });
+     this.newPageButton = page.getByRole(&#39;button&#39;, { name: &#39;Nueva página&#39; });
+     this.pageTree = page.getByRole(&#39;navigation&#39;, { name: &#39;Páginas&#39; });
+```
+
+### TC0008 - a page opens from the sidebar tree
+
+- Status: **suggested** (not a confirmed fix: review required) · re-run with the change: **passed**
+- Diagnosis: selector (medium)
+- Original failure (kept): TimeoutError: locator.waitFor: Timeout 10000ms exceeded.
+- Name change: removed [actual] · added []: confirm it is the same action
+- Re-run detail: passed once with the new locator
+- Failing locator: `getByRole(&#39;button&#39;, { name: &#39;Cambiar de espacio de trabajo actual&#39; })`
+- Candidate: button &quot;Cambiar de espacio de trabajo&quot; (similarity 0.81)
+- Source: `pages/WorkspacePage.js:7`
+
+```diff
+--- a/pages/WorkspacePage.js
++++ b/pages/WorkspacePage.js
+@@ -4,7 +4,7 @@
+ export class WorkspacePage extends BasePage {
+   constructor(page) {
+     super(page);
+-    this.switcher = page.getByRole(&#39;button&#39;, { name: &#39;Cambiar de espacio de trabajo actual&#39; });
++    this.switcher = page.getByRole(&#39;button&#39;, { name: &#39;Cambiar de espacio de trabajo&#39;, exact: true });
+     this.searchButton = page.getByRole(&#39;button&#39;, { name: /^Buscar/ });
+     this.newPageButton = page.getByRole(&#39;button&#39;, { name: &#39;Nueva página&#39; });
+     this.pageTree = page.getByRole(&#39;navigation&#39;, { name: &#39;Páginas&#39; });
+```
+
+### TC0009 - search finds a page by its title
+
+- Status: **suggested** (not a confirmed fix: review required) · re-run with the change: **passed**
+- Diagnosis: selector (medium)
+- Original failure (kept): TimeoutError: locator.waitFor: Timeout 10000ms exceeded.
+- Name change: removed [actual] · added []: confirm it is the same action
+- Re-run detail: passed once with the new locator
+- Failing locator: `getByRole(&#39;button&#39;, { name: &#39;Cambiar de espacio de trabajo actual&#39; })`
+- Candidate: button &quot;Cambiar de espacio de trabajo&quot; (similarity 0.81)
+- Source: `pages/WorkspacePage.js:7`
+
+```diff
+--- a/pages/WorkspacePage.js
++++ b/pages/WorkspacePage.js
+@@ -4,7 +4,7 @@
+ export class WorkspacePage extends BasePage {
+   constructor(page) {
+     super(page);
+-    this.switcher = page.getByRole(&#39;button&#39;, { name: &#39;Cambiar de espacio de trabajo actual&#39; });
++    this.switcher = page.getByRole(&#39;button&#39;, { name: &#39;Cambiar de espacio de trabajo&#39;, exact: true });
+     this.searchButton = page.getByRole(&#39;button&#39;, { name: /^Buscar/ });
+     this.newPageButton = page.getByRole(&#39;button&#39;, { name: &#39;Nueva página&#39; });
+     this.pageTree = page.getByRole(&#39;navigation&#39;, { name: &#39;Páginas&#39; });
+```
+</pre></body></html>

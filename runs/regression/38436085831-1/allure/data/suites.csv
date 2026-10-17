@@ -1,0 +1,2 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"","10574","TC0035 - the workspace switcher lists the account workspaces and the create option","chromium","2026-10-13","failed","2026-10-13","Settings, profile and administration (owner)","regression/settings.spec.js","",""

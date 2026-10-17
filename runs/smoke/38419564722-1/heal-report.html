@@ -1,0 +1,19 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Selector healing suggestions · smoke run 38419564722</title><style>body{font:14px/1.5 system-ui,sans-serif;max-width:1000px;margin:16px auto;padding:0 16px}pre{white-space:pre-wrap;word-break:break-word}@media(prefers-color-scheme:dark){body{background:#0d1117;color:#e6edf3}}</style></head><body><p><a href="../../../index.html">All runs</a></p><h1>Selector healing suggestions · smoke run 38419564722</h1><pre>## Selector healing (suggestion mode)
+
+Suggestions only. Nothing in the repository was modified. A passing re-run means the new locator found one element and the test then passed once; it is not proof the test is right. Review every diff. Assertions and expected values are never changed.
+
+### TC0005 - the owner lands on the default workspace with the full sidebar
+
+- Status: **not-applicable**
+- Diagnosis: unknown (low)
+- Failing locator: `getByRole(&#39;button&#39;, { name: &#39;Crear página nueva&#39; }).first()`
+- Why: an assertion failed: assertions are never healed
+
+### TC0006 - creating a page from the sidebar opens an untitled page in the editor
+
+- Status: **ambiguous**
+- Diagnosis: selector (medium)
+- Failing locator: `getByRole(&#39;button&#39;, { name: &#39;Crear página nueva&#39; }).first()`
+- Why: 2 elements share the name &quot;Nueva página&quot;
+- Other candidates: button &quot;Nueva página&quot; 0.67
+</pre></body></html>

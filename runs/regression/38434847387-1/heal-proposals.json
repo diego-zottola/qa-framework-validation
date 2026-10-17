@@ -1,0 +1,89 @@
+{
+  "generatedAt": "2026-10-13T17:00:38.286Z",
+  "revision": "7ea8f70beccdbcc851eecffa960432822a2726e8",
+  "notice": "Suggestions only. Nothing in the repository was modified. A passing re-run means the new locator found one element and the test then passed once; it is not proof that this is the same element or the same action as before. A person must confirm that every candidate is the intended element before applying a diff. Assertions and expected values are never changed. A patch fits only the revision it was generated for: run `npm run qa -- heal check` before applying it.",
+  "proposals": [
+    {
+      "title": "TC0012 - archiving a page asks for confirmation and moves it to the trash",
+      "file": "tests/regression/pages.spec.js",
+      "project": "chromium",
+      "line": 28,
+      "failure": "TimeoutError: locator.click: Timeout 10000ms exceeded.",
+      "diagnosis": {
+        "category": "selector",
+        "confidence": "medium"
+      },
+      "original": "getByRole('button', { name: 'Archivar página', exact: true })",
+      "status": "needs-review",
+      "reviewRequired": true,
+      "reason": "the candidate name \"Archivar\" is already used by other locators (pages/EditorPage.js:66, pages/WorkspacePage.js:50): it may be a different element than the renamed one. Not included in heal.patch",
+      "candidate": {
+        "role": "button",
+        "name": "Archivar",
+        "score": 0.75
+      },
+      "differences": {
+        "removed": [
+          "pagina"
+        ],
+        "added": []
+      },
+      "replacement": "getByRole('button', { name: 'Archivar', exact: true })",
+      "proposedBy": "rules",
+      "source": {
+        "file": "pages/EditorPage.js",
+        "line": 14,
+        "sha256": "d1f95c615d351d9e7876fc68100155ae0ca9eb9caa9188daa2d8307de871e714"
+      },
+      "diff": "--- a/pages/EditorPage.js\n+++ b/pages/EditorPage.js\n@@ -11,7 +11,7 @@\n     this.breadcrumb = page.getByRole('navigation', { name: 'Ruta de la página' });\n     this.shareButton = page.getByRole('button', { name: 'Compartir', exact: true });\n     this.moveButton = page.getByRole('button', { name: 'Mover', exact: true });\n-    this.archiveButton = page.getByRole('button', { name: 'Archivar página', exact: true });\n+    this.archiveButton = page.getByRole('button', { name: 'Archivar', exact: true });\n     this.readOnlyBadge = page.getByText('Solo lectura');\n     this.emptyNotice = page.getByText('Esta página está vacía.');\n     this.archiveConfirm = page.getByRole('alertdialog', { name: '¿Archivar esta página?' });\n"
+    },
+    {
+      "title": "TC0013 - cancelling the archive confirmation keeps the page",
+      "file": "tests/regression/pages.spec.js",
+      "project": "chromium",
+      "line": 39,
+      "failure": "TimeoutError: locator.click: Timeout 10000ms exceeded.",
+      "diagnosis": {
+        "category": "selector",
+        "confidence": "medium"
+      },
+      "original": "getByRole('button', { name: 'Archivar página', exact: true })",
+      "status": "needs-review",
+      "reviewRequired": true,
+      "reason": "the candidate name \"Archivar\" is already used by other locators (pages/EditorPage.js:66, pages/WorkspacePage.js:50): it may be a different element than the renamed one. Not included in heal.patch",
+      "candidate": {
+        "role": "button",
+        "name": "Archivar",
+        "score": 0.75
+      },
+      "differences": {
+        "removed": [
+          "pagina"
+        ],
+        "added": []
+      },
+      "replacement": "getByRole('button', { name: 'Archivar', exact: true })",
+      "proposedBy": "rules",
+      "source": {
+        "file": "pages/EditorPage.js",
+        "line": 14,
+        "sha256": "d1f95c615d351d9e7876fc68100155ae0ca9eb9caa9188daa2d8307de871e714"
+      },
+      "diff": "--- a/pages/EditorPage.js\n+++ b/pages/EditorPage.js\n@@ -11,7 +11,7 @@\n     this.breadcrumb = page.getByRole('navigation', { name: 'Ruta de la página' });\n     this.shareButton = page.getByRole('button', { name: 'Compartir', exact: true });\n     this.moveButton = page.getByRole('button', { name: 'Mover', exact: true });\n-    this.archiveButton = page.getByRole('button', { name: 'Archivar página', exact: true });\n+    this.archiveButton = page.getByRole('button', { name: 'Archivar', exact: true });\n     this.readOnlyBadge = page.getByText('Solo lectura');\n     this.emptyNotice = page.getByText('Esta página está vacía.');\n     this.archiveConfirm = page.getByRole('alertdialog', { name: '¿Archivar esta página?' });\n"
+    },
+    {
+      "title": "TC0031 - the profile shows the name, the username and the workspaces with their role",
+      "file": "tests/regression/settings.spec.js",
+      "project": "chromium",
+      "line": 26,
+      "failure": "Error: expect(locator).toBeDisabled() failed",
+      "diagnosis": {
+        "category": "unknown",
+        "confidence": "low"
+      },
+      "original": "getByRole('button', { name: 'Guardar nombre de usuario' })",
+      "status": "not-applicable",
+      "reason": "an assertion failed: assertions are never healed"
+    }
+  ]
+}

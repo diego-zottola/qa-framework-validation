@@ -1,0 +1,63 @@
+{
+  "stats": {
+    "startTime": "2026-10-13T15:21:10.504Z",
+    "duration": 75584.322,
+    "expected": 23,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 1
+  },
+  "counts": {
+    "selector": 2,
+    "flaky": 1
+  },
+  "items": [
+    {
+      "title": "TC0012 - archiving a page asks for confirmation and moves it to the trash",
+      "file": "regression/pages.spec.js",
+      "line": 28,
+      "project": "chromium",
+      "status": "unexpected",
+      "attempts": 3,
+      "category": "selector",
+      "confidence": "medium",
+      "reason": "the element for click never appeared",
+      "alternatives": [
+        "product"
+      ],
+      "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: 'Archivar página', exact: true })\n"
+    },
+    {
+      "title": "TC0013 - cancelling the archive confirmation keeps the page",
+      "file": "regression/pages.spec.js",
+      "line": 39,
+      "project": "chromium",
+      "status": "unexpected",
+      "attempts": 3,
+      "category": "selector",
+      "confidence": "medium",
+      "reason": "the element for click never appeared",
+      "alternatives": [
+        "product"
+      ],
+      "message": "TimeoutError: locator.click: Timeout 10000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: 'Archivar página', exact: true })\n"
+    },
+    {
+      "title": "TC0015 - an archived page can be deleted permanently from the trash",
+      "file": "regression/pages.spec.js",
+      "line": 60,
+      "project": "chromium",
+      "status": "flaky",
+      "attempts": 2,
+      "category": "flaky",
+      "confidence": "high",
+      "reason": "passed on attempt 2; the failed attempts looked like unknown (first error: Error: expect(received).toEqual(expected) // deep equality)",
+      "alternatives": [],
+      "causes": [
+        "unknown"
+      ],
+      "message": "Error: expect(received).toEqual(expected) // deep equality\n\n- Expected  - 1\n+ Received  + 5\n\n- Array []"
+    }
+  ],
+  "setupErrors": []
+}

@@ -1,0 +1,32 @@
+{
+  "stats": {
+    "startTime": "2026-10-13T15:10:18.824Z",
+    "duration": 51277.284999999996,
+    "expected": 25,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 1
+  },
+  "counts": {
+    "flaky": 1
+  },
+  "items": [
+    {
+      "title": "TC0015 - an archived page can be deleted permanently from the trash",
+      "file": "regression/pages.spec.js",
+      "line": 60,
+      "project": "chromium",
+      "status": "flaky",
+      "attempts": 2,
+      "category": "flaky",
+      "confidence": "high",
+      "reason": "passed on attempt 2; the failed attempts looked like unknown (first error: Error: expect(received).toEqual(expected) // deep equality)",
+      "alternatives": [],
+      "causes": [
+        "unknown"
+      ],
+      "message": "Error: expect(received).toEqual(expected) // deep equality\n\n- Expected  - 1\n+ Received  + 5\n\n- Array []"
+    }
+  ],
+  "setupErrors": []
+}
