@@ -1,0 +1,45 @@
+{
+  "generatedAt": "2026-10-13T16:54:42.947Z",
+  "revision": "62cfb0231777899a98caf32935bf9013a1a1743b",
+  "notice": "Suggestions only. Nothing in the repository was modified. A passing re-run means the new locator found one element and the test then passed once; it is not proof that this is the same element or the same action as before. A person must confirm that every candidate is the intended element before applying a diff. Assertions and expected values are never changed. A patch fits only the revision it was generated for: run `npm run qa -- heal check` before applying it.",
+  "proposals": [
+    {
+      "title": "TC0012 - archiving a page asks for confirmation and moves it to the trash",
+      "file": "tests/regression/pages.spec.js",
+      "project": "chromium",
+      "line": 28,
+      "failure": "TimeoutError: locator.click: Timeout 10000ms exceeded.",
+      "diagnosis": {
+        "category": "selector",
+        "confidence": "medium"
+      },
+      "original": "getByRole('button', { name: 'Archivar página', exact: true })",
+      "status": "rejected",
+      "reason": "the candidate name \"Archivar\" is already used by other locators (pages/EditorPage.js:66, pages/WorkspacePage.js:50): it is probably a different element, not the renamed one",
+      "candidate": {
+        "role": "button",
+        "name": "Archivar",
+        "score": 0.75
+      }
+    },
+    {
+      "title": "TC0013 - cancelling the archive confirmation keeps the page",
+      "file": "tests/regression/pages.spec.js",
+      "project": "chromium",
+      "line": 39,
+      "failure": "TimeoutError: locator.click: Timeout 10000ms exceeded.",
+      "diagnosis": {
+        "category": "selector",
+        "confidence": "medium"
+      },
+      "original": "getByRole('button', { name: 'Archivar página', exact: true })",
+      "status": "rejected",
+      "reason": "the candidate name \"Archivar\" is already used by other locators (pages/EditorPage.js:66, pages/WorkspacePage.js:50): it is probably a different element, not the renamed one",
+      "candidate": {
+        "role": "button",
+        "name": "Archivar",
+        "score": 0.75
+      }
+    }
+  ]
+}

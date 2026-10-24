@@ -1,0 +1,11 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Failure diagnosis · smoke run 38421150037</title><style>body{font:14px/1.5 system-ui,sans-serif;max-width:1000px;margin:16px auto;padding:0 16px}pre{white-space:pre-wrap;word-break:break-word}@media(prefers-color-scheme:dark){body{background:#0d1117;color:#e6edf3}}</style></head><body><p><a href="../../../index.html">All runs</a></p><h1>Failure diagnosis · smoke run 38421150037</h1><pre>## Failure diagnosis
+
+selector: 1 · unknown: 1
+
+Categories are evidence-based guesses, not verdicts: &quot;unknown&quot; and low confidence mean a person must look.
+
+| Test | Category | Confidence | Why |
+|---|---|---|---|
+| TC0005 - the owner lands on the default workspace with the full sidebar | unknown | low | an element was expected but not found: broken selector or removed behavior (could also be: selector, product) |
+| TC0006 - creating a page from the sidebar opens an untitled page in the editor | selector | medium | the element for click never appeared (could also be: product) |
+</pre></body></html>

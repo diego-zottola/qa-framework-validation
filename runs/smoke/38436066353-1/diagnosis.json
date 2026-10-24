@@ -1,0 +1,76 @@
+{
+  "stats": {
+    "startTime": "2026-10-13T17:07:57.083Z",
+    "duration": 92463.753,
+    "expected": 5,
+    "skipped": 0,
+    "unexpected": 4,
+    "flaky": 0
+  },
+  "counts": {
+    "selector": 4
+  },
+  "items": [
+    {
+      "title": "TC0005 - the owner lands on the default workspace with the full sidebar",
+      "file": "smoke-tests/workspace.spec.js",
+      "line": 7,
+      "project": "chromium",
+      "status": "unexpected",
+      "attempts": 3,
+      "category": "selector",
+      "confidence": "medium",
+      "reason": "the element for waitFor never appeared",
+      "alternatives": [
+        "product"
+      ],
+      "message": "TimeoutError: locator.waitFor: Timeout 10000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: 'Cambiar de espacio de trabajo actual' }) to be visible\n"
+    },
+    {
+      "title": "TC0006 - creating a page from the sidebar opens an untitled page in the editor",
+      "file": "smoke-tests/workspace.spec.js",
+      "line": 17,
+      "project": "chromium",
+      "status": "unexpected",
+      "attempts": 3,
+      "category": "selector",
+      "confidence": "medium",
+      "reason": "the element for waitFor never appeared",
+      "alternatives": [
+        "product"
+      ],
+      "message": "TimeoutError: locator.waitFor: Timeout 10000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: 'Cambiar de espacio de trabajo actual' }) to be visible\n"
+    },
+    {
+      "title": "TC0008 - a page opens from the sidebar tree",
+      "file": "smoke-tests/workspace.spec.js",
+      "line": 38,
+      "project": "chromium",
+      "status": "unexpected",
+      "attempts": 3,
+      "category": "selector",
+      "confidence": "medium",
+      "reason": "the element for waitFor never appeared",
+      "alternatives": [
+        "product"
+      ],
+      "message": "TimeoutError: locator.waitFor: Timeout 10000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: 'Cambiar de espacio de trabajo actual' }) to be visible\n"
+    },
+    {
+      "title": "TC0009 - search finds a page by its title",
+      "file": "smoke-tests/workspace.spec.js",
+      "line": 46,
+      "project": "chromium",
+      "status": "unexpected",
+      "attempts": 3,
+      "category": "selector",
+      "confidence": "medium",
+      "reason": "the element for waitFor never appeared",
+      "alternatives": [
+        "product"
+      ],
+      "message": "TimeoutError: locator.waitFor: Timeout 10000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: 'Cambiar de espacio de trabajo actual' }) to be visible\n"
+    }
+  ],
+  "setupErrors": []
+}

@@ -1,0 +1,31 @@
+{
+  "stats": {
+    "startTime": "2026-10-13T17:03:37.543Z",
+    "duration": 43637.325000000004,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  },
+  "counts": {
+    "selector": 1
+  },
+  "items": [
+    {
+      "title": "TC0035 - the workspace switcher lists the account workspaces and the create option",
+      "file": "regression/settings.spec.js",
+      "line": 60,
+      "project": "chromium",
+      "status": "unexpected",
+      "attempts": 3,
+      "category": "selector",
+      "confidence": "medium",
+      "reason": "the element for waitFor never appeared",
+      "alternatives": [
+        "product"
+      ],
+      "message": "TimeoutError: locator.waitFor: Timeout 10000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: 'Cambiar de espacio de trabajo actual' }) to be visible\n"
+    }
+  ],
+  "setupErrors": []
+}
