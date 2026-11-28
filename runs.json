@@ -1,6 +1,25 @@
 [
   {
     "suite": "smoke",
+    "runId": "46172932623",
+    "attempt": "1",
+    "sha": "50f9c9e",
+    "branch": "main",
+    "event": "schedule",
+    "startedAt": "2026-11-28T17:55:23.441Z",
+    "finishedAt": "2026-11-28T17:55:50.315Z",
+    "counts": {
+      "passed": 9,
+      "failed": 0,
+      "flaky": 0,
+      "skipped": 0
+    },
+    "status": "passed",
+    "runUrl": "https://github.com/diego-zottola/qa-framework-validation/actions/runs/46172932623",
+    "dir": "runs/smoke/46172932623-1"
+  },
+  {
+    "suite": "smoke",
     "runId": "46055690709",
     "attempt": "1",
     "sha": "50f9c9e",
@@ -264,24 +283,5 @@
     "status": "passed",
     "runUrl": "https://github.com/diego-zottola/qa-framework-validation/actions/runs/43614942689",
     "dir": "runs/smoke/43614942689-1"
-  },
-  {
-    "suite": "smoke",
-    "runId": "43472954482",
-    "attempt": "1",
-    "sha": "50f9c9e",
-    "branch": "main",
-    "event": "schedule",
-    "startedAt": "2026-11-13T17:28:29.339Z",
-    "finishedAt": "2026-11-13T17:28:54.837Z",
-    "counts": {
-      "passed": 9,
-      "failed": 0,
-      "flaky": 0,
-      "skipped": 0
-    },
-    "status": "passed",
-    "runUrl": "https://github.com/diego-zottola/qa-framework-validation/actions/runs/43472954482",
-    "dir": "runs/smoke/43472954482-1"
   }
 ]
